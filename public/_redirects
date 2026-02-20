@@ -1,0 +1,5 @@
+# Optional canonical redirect after your Pages project name is known:
+# https://<your-pages-project>.pages.dev/* https://futbolconu.com/:splat 301
+
+# SPA fallback
+/* /index.html 200

@@ -1,0 +1,18 @@
+export const CHAMPIONS_KO_TEAMS = [
+  "Atalanta",
+  "Atlético Madrid",
+  "Benfica",
+  "Bodø/Glimt",
+  "Club Brugge",
+  "Dortmund",
+  "Galatasaray",
+  "Inter",
+  "Juventus",
+  "Leverkusen",
+  "Monaco",
+  "Newcastle United",
+  "Olympiacos",
+  "Paris Saint-Germain",
+  "Qarabağ",
+  "Real Madrid",
+];

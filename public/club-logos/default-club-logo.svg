@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Club logo placeholder">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#163a70"/>
+      <stop offset="100%" stop-color="#2e6bc0"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="40" fill="url(#g)"/>
+  <circle cx="128" cy="108" r="44" fill="#ffffff" opacity="0.95"/>
+  <path d="M128 148l52 20-20 46H96l-20-46z" fill="#ffffff" opacity="0.95"/>
+</svg>
