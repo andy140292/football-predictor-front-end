@@ -305,7 +305,7 @@ export default function Champions({ session, apiBaseUrl, onRequestLogin, heroTag
                 <div className="consensus-favorite-row">
                   {favoriteTeamImageUrl && (
                     <span
-                      className="consensus-favorite-flag"
+                      className="consensus-favorite-flag consensus-favorite-flag--logo"
                       style={{ "--flag-url": `url(${favoriteTeamImageUrl})` }}
                       aria-hidden="true"
                     />

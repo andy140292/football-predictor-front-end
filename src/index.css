@@ -965,7 +965,6 @@ textarea {
 
 .champions-page #resultados {
     margin-top: 0;
-    padding-top: 0;
 }
 
 .champions-page #resultados .outcome-card::before {
@@ -2329,6 +2328,14 @@ textarea {
     flex: 0 0 auto;
 }
 
+.consensus-favorite-flag--logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
 .consensus-pick {
     margin: 0;
     color: var(--text-on-dark);
@@ -2911,6 +2918,11 @@ textarea {
         height: 30px;
     }
 
+    .consensus-favorite-flag--logo {
+        width: 46px;
+        height: 46px;
+    }
+
     .outcome-label {
         white-space: normal;
     }
@@ -3131,6 +3143,11 @@ textarea {
         height: 26px;
     }
 
+    .consensus-favorite-flag--logo {
+        width: 40px;
+        height: 40px;
+    }
+
     .outcome-card--with-flag::before {
         width: 34px;
         height: 22px;
@@ -3243,6 +3260,16 @@ textarea {
     font-weight: 600;
     color: var(--text-on-dark);
     text-align: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.match-team span {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .match-flag-col {
@@ -3362,6 +3389,7 @@ textarea {
 
 .group-table table {
     width: 100%;
+    min-width: 520px;
     border-collapse: collapse;
     font-size: 16px;
     color: var(--text-on-dark);
@@ -3380,6 +3408,10 @@ textarea {
 
 .group-table tbody tr + tr {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.group-table {
+    overflow-x: auto;
 }
 
 .third-list {
@@ -3618,27 +3650,57 @@ textarea {
 
 @media (max-width: 720px) {
     .match-row {
-        grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
-        align-items: start;
+        grid-template-columns: 28px minmax(0, 1fr) auto minmax(0, 1fr) 28px;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 4px;
+    }
+
+    .match-flag-col {
+        padding: 6px 0;
     }
 
     .match-score {
-        justify-content: flex-start;
+        justify-content: center;
     }
 
     .match-team {
         justify-content: flex-start;
+        text-align: left;
+        padding: 6px;
+    }
+
+    .match-team--away {
+        justify-content: flex-end;
+        text-align: right;
+    }
+
+    .match-team--home span,
+    .match-team--away span {
+        width: 100%;
+    }
+
+    .match-team--away span {
+        text-align: right;
     }
 
     .match-flag {
-        width: 26px;
-        height: 17px;
+        width: 24px;
+        height: 16px;
         box-shadow: none;
+    }
+
+    .score-input {
+        width: 40px;
+        padding: 5px 3px;
+        font-size: 16px;
     }
 
     .ko-row {
         grid-template-columns: 90px 56px minmax(0, 1fr) auto minmax(0, 1fr) 48px;
         font-size: 11px;
+        gap: 8px;
+        padding: 8px 10px;
     }
 
     .knockout-round {
@@ -3647,5 +3709,74 @@ textarea {
 
     .ko-team-text {
         font-size: 11px;
+    }
+}
+
+@media (max-width: 560px) {
+    .group-matches,
+    .group-table,
+    .third-place-card,
+    .knockout-card {
+        padding: 14px 12px;
+    }
+
+    .group-table table {
+        min-width: 470px;
+        font-size: 14px;
+    }
+
+    .group-table th,
+    .group-table td {
+        padding: 6px 4px;
+    }
+
+    .match-row {
+        align-items: center;
+        grid-template-columns: 24px minmax(0, 1fr) auto minmax(0, 1fr) 24px;
+        gap: 6px;
+        padding: 10px 4px;
+    }
+
+    .match-team {
+        padding: 5px;
+    }
+
+    .match-flag-col {
+        padding: 5px 0;
+    }
+
+    .score-input {
+        width: 34px;
+        padding: 4px 2px;
+        font-size: 14px;
+    }
+
+    .ko-row {
+        grid-template-columns: 68px 42px minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 6px;
+        padding: 8px;
+    }
+
+    .match-flag {
+        width: 22px;
+        height: 15px;
+    }
+
+    .ko-match-id {
+        display: none;
+    }
+
+    .ko-date,
+    .ko-time {
+        font-size: 10px;
+    }
+
+    .ko-flag {
+        width: 24px;
+        height: 16px;
+    }
+
+    .ko-team-text {
+        font-size: 10px;
     }
 }
