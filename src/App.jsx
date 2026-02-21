@@ -74,9 +74,9 @@ const NAV_LINKS = [
 ];
 
 const FOOTNOTE_LINKS = [
-    { label: "YouTube", href: "https://youtube.com/@tuusuario" },
-    { label: "Instagram", href: "https://instagram.com/tuusuario" },
-    { label: "X", href: "https://x.com/tuusuario" },
+    { label: "YouTube", href: "https://youtube.com/@futbolconu" },
+    { label: "Instagram", href: "https://instagram.com/futbolconu" },
+    { label: "TikTok", href: "https://www.tiktok.com/@futbolconu" },
 ];
 
 const HERO_TAGS = ["#FUTBOLCONU", "#MUNDIAL2026", "#FUTBOLSUDAMERICANO", "#PREDICTOR", "#AMISTOSO"];
@@ -132,21 +132,21 @@ const SCHEDULE_ITEMS = [
     {
         date: "Feb 16",
         time: "18:30",
-        homeTeam: "Paraguay",
-        awayTeam: "Marruecos",
+        homeTeam: "Colombia",
+        awayTeam: "Francia",
         note: "Amistoso Internacional",
     },
     {
         date: "Feb 23",
         time: "21:00",
-        homeTeam: "México",
-        awayTeam: "Portugal",
+        homeTeam: "Argentina",
+        awayTeam: "España",
         note: "Amistoso Internacional",
     },
     {
         date: "Feb 09",
         time: "20:00",
-        homeTeam: "Colombia",
+        homeTeam: "Brasil",
         awayTeam: "Francia",
         note: "Amistoso Internacional",
     },
@@ -1637,7 +1637,7 @@ const App = () => {
                                 <div className="latest-video md-card md-card--elevated">
                                     <div className="video-frame">
                                         <iframe
-                                            src="https://www.youtube.com/embed/AhacYIBD0FA?si=BmXKS2I6uVCNy3xa"
+                                            src="https://www.youtube.com/embed/8cAY80JYyNI?si=OO-MyiozzDRmGlHv"
                                             title="FutbolConU - Video más reciente"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
