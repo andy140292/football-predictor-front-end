@@ -7,7 +7,7 @@ import { CHAMPIONS_KO_TEAMS } from "../data/championsTeams";
 import { getClubLogoUrl } from "../data/clubLogoMapping";
 import useInView from "../hooks/useInView";
 import { parsePredictionResponse } from "../utils/predictionPayload";
-import championsBackground from "../assets/champions_background_5.jpg";
+import championsBackground from "../assets/champions_background_5_1920.jpg";
 
 const formatRelative = (timestamp, nowMs) => {
   if (!timestamp) return "";
