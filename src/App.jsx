@@ -8,6 +8,10 @@ import { getFlagCodeForTeam, getSpanishTeamName, resolveCanonicalTeam } from "./
 import { getTeamConfed } from "./data/teamConfed";
 import useInView from "./hooks/useInView";
 import { parsePredictionResponse } from "./utils/predictionPayload";
+import lumenField from "./assets/lumen_field.jpeg";
+import venCanCopaAmerica from "./assets/ven_can_copa_america.jpeg";
+import venMexCopaAmerica from "./assets/ven_mex_copa_america.jpeg";
+import venEcuCopaAmerica from "./assets/ven_ecu_copa_america.jpeg";
 
 const LoginBox = lazy(() => import("./components/LoginBox"));
 const Mundial = lazy(() => import("./components/Mundial"));
@@ -17,6 +21,7 @@ const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
     (import.meta.env.DEV ? "/api" : "https://api.futbolconu.com");
 const RECENT_FORM_COUNT = 5;
+const NATIONAL_MODEL_VERSION = String(import.meta.env.VITE_NATIONAL_MODEL_VERSION || "").trim();
 
 const H2H_TOURNAMENTS = [
     "FIFA World Cup",
@@ -68,9 +73,10 @@ const H2H_TOURNAMENT_FILTERS = [
 
 const NAV_LINKS = [
     { id: "home", label: "Inicio" },
-    { id: "predictor", label: "Predictor" },
+    { id: "national", label: "Selecciones" },
     { id: "champions", label: "Champions" },
     { id: "mundial", label: "Mundial" },
+    { id: "about", label: "Nosotros" },
 ];
 
 const FOOTNOTE_LINKS = [
@@ -80,6 +86,12 @@ const FOOTNOTE_LINKS = [
 ];
 
 const HERO_TAGS = ["#FUTBOLCONU", "#MUNDIAL2026", "#FUTBOLSUDAMERICANO", "#PREDICTOR", "#AMISTOSO"];
+const HOME_HERO_SLIDES = [
+    { id: "lumen", src: lumenField, objectPosition: "58% center" },
+    { id: "ven-can", src: venCanCopaAmerica, objectPosition: "center 38%" },
+    { id: "ven-mex", src: venMexCopaAmerica, objectPosition: "center 34%" },
+    { id: "ven-ecu", src: venEcuCopaAmerica, objectPosition: "center 36%" },
+];
 const COUNTDOWN_TARGET = new Date("2026-06-11T00:00:00");
 
 const isMockMode = () => {
@@ -128,29 +140,65 @@ const buildMockTeamVsConfed = (homeTeam, awayTeam) => {
     };
 };
 
-const SCHEDULE_ITEMS = [
-    {
-        date: "Feb 16",
-        time: "18:30",
-        homeTeam: "Colombia",
-        awayTeam: "Francia",
-        note: "Amistoso Internacional",
-    },
-    {
-        date: "Feb 23",
-        time: "21:00",
-        homeTeam: "Argentina",
-        awayTeam: "España",
-        note: "Amistoso Internacional",
-    },
-    {
-        date: "Feb 09",
-        time: "20:00",
-        homeTeam: "Brasil",
-        awayTeam: "Francia",
-        note: "Amistoso Internacional",
-    },
-];
+/**
+ * @typedef {Object} ModelScorecard
+ * @property {string} mode
+ * @property {string} model_version
+ * @property {string | null} from_date
+ * @property {string | null} to_date
+ * @property {number} correct_count
+ * @property {number} incorrect_count
+ * @property {number} total_scored
+ * @property {number} accuracy_pct
+ */
+
+const formatIsoDate = (date) => {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
+
+const getLast12ClosedMonthsRange = (now = new Date()) => {
+    const lastDayPreviousMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0));
+    const firstDayTwelveMonthWindow = new Date(
+        Date.UTC(lastDayPreviousMonth.getUTCFullYear(), lastDayPreviousMonth.getUTCMonth() - 11, 1)
+    );
+    return {
+        fromDate: formatIsoDate(firstDayTwelveMonthWindow),
+        toDate: formatIsoDate(lastDayPreviousMonth),
+    };
+};
+
+const requestModelScorecard = async ({ token, apiBaseUrl, modelVersion }) => {
+    const { fromDate, toDate } = getLast12ClosedMonthsRange();
+    const params = new URLSearchParams({
+        mode: "national",
+        model_version: modelVersion,
+        from_date: fromDate,
+        to_date: toDate,
+    });
+
+    const response = await fetch(`${apiBaseUrl}/model-scorecard?${params.toString()}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        let serverMessage = "";
+        try {
+            const errorPayload = await response.json();
+            serverMessage = errorPayload?.detail || errorPayload?.error || errorPayload?.message || "";
+        } catch {
+            serverMessage = "";
+        }
+        const statusSuffix = response.status ? ` (HTTP ${response.status})` : "";
+        throw new Error(serverMessage ? `${serverMessage}${statusSuffix}` : `Request failed${statusSuffix}`);
+    }
+
+    return await response.json();
+};
 
 const getCountdown = (targetDate, nowMs) => {
     const diff = Math.max(0, targetDate.getTime() - nowMs);
@@ -242,6 +290,8 @@ const getPageFromHash = () => {
     const hash = window.location.hash;
     if (hash === "#mundial") return "mundial";
     if (hash === "#champions") return "champions";
+    if (hash === "#about") return "about";
+    if (hash === "#national" || hash === "#predictor") return "national";
     return "home";
 };
 
@@ -398,6 +448,19 @@ const CompleteRegistrationCard = memo(function CompleteRegistrationCard({
     );
 });
 
+const ModelScorecardSummary = memo(function ModelScorecardSummary({ variant = "hero", summary, subtext }) {
+    return (
+        <div className={`model-scorecard model-scorecard--${variant} md-card`} role="status" aria-live="polite">
+            <p className="model-scorecard-main text-body">
+                {summary}
+            </p>
+            <p className="model-scorecard-sub text-caption">
+                {subtext}
+            </p>
+        </div>
+    );
+});
+
 const App = () => {
     const [homeTeam, setHomeTeam] = useState("");
     const [awayTeam, setAwayTeam] = useState("");
@@ -411,8 +474,12 @@ const App = () => {
     const [futureMatchVoteError, setFutureMatchVoteError] = useState("");
     const [predictionTimestamp, setPredictionTimestamp] = useState(null);
     const [resultTeams, setResultTeams] = useState(null);
+    const [modelScorecard, setModelScorecard] = useState(null);
+    const [modelScorecardLoading, setModelScorecardLoading] = useState(false);
+    const [modelScorecardError, setModelScorecardError] = useState("");
     const [session, setSession] = useState(null);
     const requestControllerRef = useRef(null);
+    const modelScorecardRequestRef = useRef(0);
     const accountMenuRef = useRef(null);
     const h2hRequestRef = useRef({ teamsKey: "", filtersKey: "" });
     const teamVsConfedRequestRef = useRef({ teamsKey: "" });
@@ -420,7 +487,8 @@ const App = () => {
     const lastScrollYRef = useRef(0);
     const tickingRef = useRef(false);
     const [shareStatus, setShareStatus] = useState("");
-    const [showLoginModal, setShowLoginModal] = useState(true);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [authInitialized, setAuthInitialized] = useState(false);
     const [authNotice, setAuthNotice] = useState("");
     const [needsRegistrationCompletion, setNeedsRegistrationCompletion] = useState(false);
     const [completionTermsAccepted, setCompletionTermsAccepted] = useState(false);
@@ -571,7 +639,8 @@ const App = () => {
 
             if (!nextSession) {
                 setNeedsRegistrationCompletion(false);
-                setShowLoginModal(true);
+                setShowLoginModal(false);
+                setAuthInitialized(true);
                 return;
             }
 
@@ -593,7 +662,11 @@ const App = () => {
             const isRecentUser = isRecentlyCreatedUser(nextSession.user);
             const subscriberLookup = await hasSubscriberRecord(nextSession.user.email);
             const hasSubscriber = persistedPending || subscriberLookup.exists;
-            const needsCompletion = !hasSubscriber && (hasSignupIntent || isRecentUser);
+            const needsCompletion = !hasSubscriber && isRecentUser;
+
+            if (hasSignupIntent && !isRecentUser) {
+                clearPendingSignup();
+            }
 
             if (persistError) {
                 if (isSubscriberPermissionError(persistError)) {
@@ -616,10 +689,12 @@ const App = () => {
                     setCompletionNewsletterOptIn(false);
                 }
                 setCompletionError("");
+                setAuthInitialized(true);
                 return;
             }
 
             setCompletionError("");
+            setAuthInitialized(true);
         };
 
         supabase.auth.getSession().then(({ data }) => {
@@ -678,6 +753,15 @@ const App = () => {
     }, []);
 
     useEffect(() => {
+        if (!authInitialized || session || page === "home") return;
+        if (typeof window !== "undefined" && window.location.hash !== "#home") {
+            window.location.hash = "#home";
+        }
+        setPage("home");
+        setShowLoginModal(false);
+    }, [authInitialized, session, page]);
+
+    useEffect(() => {
         if (!isAccountMenuOpen) return;
 
         const handlePointerDown = (event) => {
@@ -705,6 +789,59 @@ const App = () => {
             setIsAccountMenuOpen(false);
         }
     }, [session]);
+
+    useEffect(() => {
+        if (!session || page !== "national" || mockMode || !NATIONAL_MODEL_VERSION) {
+            setModelScorecard(null);
+            setModelScorecardLoading(false);
+            setModelScorecardError("");
+            return;
+        }
+
+        let cancelled = false;
+        const requestId = ++modelScorecardRequestRef.current;
+
+        const fetchModelScorecard = async () => {
+            try {
+                setModelScorecardLoading(true);
+                setModelScorecardError("");
+
+                const { data: sessionData, error } = await supabase.auth.getSession();
+                if (error) throw error;
+                const token = sessionData?.session?.access_token;
+
+                if (!token) {
+                    if (!cancelled && requestId === modelScorecardRequestRef.current) {
+                        setModelScorecard(null);
+                    }
+                    return;
+                }
+
+                const payload = await requestModelScorecard({
+                    token,
+                    apiBaseUrl: API_BASE_URL,
+                    modelVersion: NATIONAL_MODEL_VERSION,
+                });
+
+                if (cancelled || requestId !== modelScorecardRequestRef.current) return;
+                setModelScorecard(payload);
+            } catch (error) {
+                if (cancelled || requestId !== modelScorecardRequestRef.current) return;
+                console.error("Error loading model scorecard:", error);
+                setModelScorecard(null);
+                setModelScorecardError(error?.message || "No se pudo cargar el scorecard del modelo.");
+            } finally {
+                if (!cancelled && requestId === modelScorecardRequestRef.current) {
+                    setModelScorecardLoading(false);
+                }
+            }
+        };
+
+        void fetchModelScorecard();
+        return () => {
+            cancelled = true;
+        };
+    }, [session, page, mockMode]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -1107,9 +1244,9 @@ const App = () => {
             setTeamVsConfedError("");
             setIsLoading(false);
             if (typeof window !== "undefined") {
-                window.location.hash = "#predictor";
+                window.location.hash = "#national";
                 window.requestAnimationFrame(() => {
-                    const target = document.getElementById("predictor");
+                    const target = document.getElementById("national");
                     if (target) {
                         target.scrollIntoView({ behavior: "smooth", block: "start" });
                     }
@@ -1183,9 +1320,9 @@ const App = () => {
             setResultTeams({ homeTeam, awayTeam });
             setLastRequestedTeams({ homeTeam: homeTeamPayload, awayTeam: awayTeamPayload });
             if (typeof window !== "undefined") {
-                window.location.hash = "#predictor";
+                window.location.hash = "#national";
                 window.requestAnimationFrame(() => {
-                    const target = document.getElementById("predictor");
+                    const target = document.getElementById("national");
                     if (target) {
                         target.scrollIntoView({ behavior: "smooth", block: "start" });
                     }
@@ -1269,6 +1406,17 @@ const App = () => {
         if (key === "away_win") return displayTeams.awayTeam;
         return "Empate";
     };
+    const scorecardAccuracy = Math.round(Number(modelScorecard?.accuracy_pct ?? 0));
+    const scorecardTotal = Number(modelScorecard?.total_scored ?? 0);
+    const scorecardSummaryText =
+        scorecardTotal > 0
+            ? `Nuestros modelos tienen un ${scorecardAccuracy}% de aciertos en ${scorecardTotal} partidos`
+            : "Aún no hay partidos suficientes para evaluar rendimiento.";
+    const scorecardSubtext = "Últimos 12 meses (actualizado mensualmente)";
+    const showModelScorecard = Boolean(
+        session && page === "national" && modelScorecard && !modelScorecardLoading && !modelScorecardError
+    );
+    const visiblePage = authInitialized ? (session ? page : "home") : "home";
 
     const formatMatchDate = (value) => {
         if (!value) return "—";
@@ -1432,11 +1580,15 @@ const App = () => {
             clearPendingSignup();
             setSession(null);
             setNeedsRegistrationCompletion(false);
-            setShowLoginModal(true);
+            setShowLoginModal(false);
             setCompletionTermsAccepted(false);
             setCompletionNewsletterOptIn(false);
             setCompletionError("");
             setAuthNotice("");
+            if (typeof window !== "undefined" && window.location.hash !== "#home") {
+                window.location.hash = "#home";
+            }
+            setPage("home");
         };
 
         setIsAccountMenuOpen(false);
@@ -1464,6 +1616,41 @@ const App = () => {
         setAuthNotice("No pudimos cerrar sesión. Intenta de nuevo.");
     };
 
+    const handleInicioPrimaryCta = () => {
+        if (!session) {
+            setShowLoginModal(true);
+            return;
+        }
+        if (typeof window !== "undefined") {
+            window.location.hash = "#national";
+        }
+    };
+
+    const handleProtectedRouteAttempt = () => {
+        if (typeof window !== "undefined" && window.location.hash !== "#home") {
+            window.location.hash = "#home";
+        }
+        setPage("home");
+        setShowLoginModal(false);
+    };
+
+    const handleNavLinkClick = (event, linkId) => {
+        if (session || linkId === "home") return;
+        event.preventDefault();
+        handleProtectedRouteAttempt();
+    };
+
+    const handleHomeDestinationClick = (event, targetHash) => {
+        if (session) {
+            if (typeof window !== "undefined") {
+                window.location.hash = targetHash;
+            }
+            return;
+        }
+        event.preventDefault();
+        handleProtectedRouteAttempt();
+    };
+
     return (
         <div className="app">
             <nav className={`nav ${navHidden ? "nav--hidden" : ""}`}>
@@ -1476,7 +1663,13 @@ const App = () => {
                     </a>
                     <div className="nav-links">
                         {NAV_LINKS.map((link) => (
-                            <a key={link.id} className="nav-link" href={`#${link.id}`}>
+                            <a
+                                key={link.id}
+                                className={`nav-link ${!session && link.id !== "home" ? "nav-link--locked" : ""} ${visiblePage === link.id ? "nav-link--active" : ""}`}
+                                href={`#${link.id}`}
+                                onClick={(event) => handleNavLinkClick(event, link.id)}
+                                aria-current={visiblePage === link.id ? "page" : undefined}
+                            >
                                 {link.label}
                             </a>
                         ))}
@@ -1532,8 +1725,8 @@ const App = () => {
                                 )}
                             </div>
                         ) : (
-                            <button className="nav-cta" onClick={() => setShowLoginModal(true)}>
-                                Inicia sesión
+                            <button type="button" className="nav-cta" onClick={() => setShowLoginModal(true)}>
+                                Iniciar sesión
                             </button>
                         )}
                     </div>
@@ -1547,19 +1740,22 @@ const App = () => {
             )}
 
             <main className="main">
-                {page === "mundial" ? (
-                <section id="mundial" className="mundial-page">
-                    <div className="section-header">
-                        <h1 className="section-title text-display-lg">Mundial 2026</h1>
-                        <p className="md-supporting-text text-caption">
-                            Simula resultados, revisa tablas y completa tu llave del mundial.
-                        </p>
-                    </div>
-                    <Suspense fallback={<p className="md-supporting-text text-caption">Cargando simulador...</p>}>
-                        <Mundial session={session} onRequestLogin={() => setShowLoginModal(true)} />
-                    </Suspense>
-                </section>
-                ) : page === "champions" ? (
+                {visiblePage === "mundial" ? (
+                <>
+                    <CountdownMarquee targetDate={COUNTDOWN_TARGET} />
+                    <section id="mundial" className="mundial-page">
+                        <div className="section-header">
+                            <h1 className="section-title text-display-lg">Mundial 2026</h1>
+                            <p className="md-supporting-text text-caption">
+                                Simula resultados, revisa tablas y completa tu llave del mundial.
+                            </p>
+                        </div>
+                        <Suspense fallback={<p className="md-supporting-text text-caption">Cargando simulador...</p>}>
+                            <Mundial session={session} onRequestLogin={() => setShowLoginModal(true)} />
+                        </Suspense>
+                    </section>
+                </>
+                ) : visiblePage === "champions" ? (
                 <>
                     <CountdownMarquee targetDate={COUNTDOWN_TARGET} />
                     <Suspense fallback={<p className="md-supporting-text text-caption">Cargando predictor...</p>}>
@@ -1571,10 +1767,127 @@ const App = () => {
                         />
                     </Suspense>
                 </>
+                ) : visiblePage === "home" ? (
+                <section id="home" className="inicio-page">
+                    <div className="inicio-hero md-card md-card--elevated">
+                        <div className="inicio-hero-grid">
+                            <div className="inicio-hero-copy">
+                                <h1 className="inicio-title text-display-xl">Vive la pasión del futbol con datos</h1>
+                                <p className="inicio-lead text-body">
+                                    Predicciones, análisis de futbol sudamericano y mundial.
+                                </p>
+                                <button
+                                    type="button"
+                                    className="md-button md-button--filled md-button--cta inicio-cta"
+                                    onClick={handleInicioPrimaryCta}
+                                >
+                                    {session ? "Ir al predictor de selecciones" : "Iniciar sesión o registrarse"}
+                                </button>
+                            </div>
+                            <div className="inicio-hero-media" aria-hidden="true">
+                                <div className="inicio-hero-media-art" />
+                                <div className="inicio-hero-slideshow">
+                                    {HOME_HERO_SLIDES.map((slide, index) => (
+                                        <figure
+                                            key={slide.id}
+                                            className="inicio-hero-slide"
+                                            style={{ "--slide-index": index, "--slide-object-position": slide.objectPosition }}
+                                        >
+                                            <img src={slide.src} alt="" />
+                                        </figure>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="inicio-link-grid">
+                        <a
+                            href={session ? "#national" : "#home"}
+                            className={`inicio-link-card inicio-link-card--national md-card md-card--filled ${!session ? "inicio-link-card--locked" : ""}`}
+                            onClick={(event) => handleHomeDestinationClick(event, "#national")}
+                            aria-disabled={!session}
+                        >
+                            <h2 className="text-display-md inicio-link-title">Predictor selecciones</h2>
+                            <p className="text-body-sm inicio-link-copy">
+                                Arma tu predicción, revisa forma reciente y compara probabilidades.
+                            </p>
+                        </a>
+                        <a
+                            href={session ? "#champions" : "#home"}
+                            className={`inicio-link-card inicio-link-card--champions md-card md-card--filled ${!session ? "inicio-link-card--locked" : ""}`}
+                            onClick={(event) => handleHomeDestinationClick(event, "#champions")}
+                            aria-disabled={!session}
+                        >
+                            <h2 className="text-display-md inicio-link-title">Predictor Champions</h2>
+                            <p className="text-body-sm inicio-link-copy">
+                                Explora predicciones para llaves europeas.
+                            </p>
+                        </a>
+                        <a
+                            href={session ? "#about" : "#home"}
+                            className={`inicio-link-card inicio-link-card--about md-card md-card--filled ${!session ? "inicio-link-card--locked" : ""}`}
+                            onClick={(event) => handleHomeDestinationClick(event, "#about")}
+                            aria-disabled={!session}
+                        >
+                            <h2 className="text-display-md inicio-link-title">Nosotros</h2>
+                            <p className="text-body-sm inicio-link-copy">
+                                Conoce la misión, enfoque y propuesta de FutbolConU.
+                            </p>
+                        </a>
+                    </div>
+                    {!session && (
+                        <p className="md-supporting-text text-caption inicio-lock-note">
+                            Inicia sesión desde el botón principal para desbloquear estas secciones.
+                        </p>
+                    )}
+                </section>
+                ) : visiblePage === "about" ? (
+                <section id="about" className="about-page">
+                    <div className="section-header">
+                        <h1 className="section-title text-display-lg">Quiénes somos</h1>
+                        <p className="md-supporting-text text-body-sm">
+                            Combinamos pasión futbolera con modelos de datos para contar mejores historias antes y después de cada partido.
+                        </p>
+                    </div>
+                    <div className="about-grid">
+                        <article className="about-card md-card md-card--filled">
+                            <p className="section-kicker">Datos</p>
+                            <h2 className="text-h3">Predicción explicable</h2>
+                            <p className="text-body-sm">
+                                Consolidamos señales de múltiples modelos para mostrar probabilidades claras y comparables.
+                            </p>
+                        </article>
+                        <article className="about-card md-card md-card--filled">
+                            <p className="section-kicker">Comunidad</p>
+                            <h2 className="text-h3">Contenido para futboleros</h2>
+                            <p className="text-body-sm">
+                                Transformamos estadísticas en piezas que conectan con aficionados y creadores de contenido.
+                            </p>
+                        </article>
+                        <article className="about-card md-card md-card--filled">
+                            <p className="section-kicker">Pasión</p>
+                            <h2 className="text-h3">Contexto que emociona</h2>
+                            <p className="text-body-sm">
+                                Cada análisis busca responder una pregunta concreta: quién llega mejor y por qué.
+                            </p>
+                        </article>
+                    </div>
+                    <div className="about-links">
+                        {FOOTNOTE_LINKS.map((link) => (
+                            <a key={link.label} className="footer-link" href={link.href} target="_blank" rel="noreferrer">
+                                {link.label}
+                            </a>
+                        ))}
+                    </div>
+                </section>
                 ) : (
                 <>
-                    <CountdownMarquee targetDate={COUNTDOWN_TARGET} />
-                    <section id="home" className="hero-section">
+                    <section
+                        id="national"
+                        ref={predictorRef}
+                        className={`hero-section section-reveal ${predictorInView ? 'section-visible' : ''}`}
+                    >
                         <div className="hero">
                             <div className="hero-content">
                                 <h1 className="hero-title text-display-xl">
@@ -1618,79 +1931,6 @@ const App = () => {
                             </div>
                         </div>
                     </section>
-                    <div className="tagline-marquee">
-                        <div className="marquee-track">
-                            {HERO_TAGS.concat(HERO_TAGS).map((tag, idx) => (
-                                <span key={`${tag}-${idx}`} className="marquee-tag">
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                    <section 
-                        id="predictor" 
-                        ref={predictorRef}
-                        className={`predictor-section section-reveal ${predictorInView ? 'section-visible' : ''}`}
-                    >
-                        <div className="video-schedule-row" id="video">
-                            <div className="video-column">
-                                <div className="latest-video md-card md-card--elevated">
-                                    <div className="video-frame">
-                                        <iframe
-                                            src="https://www.youtube.com/embed/8cAY80JYyNI?si=OO-MyiozzDRmGlHv"
-                                            title="FutbolConU - Video más reciente"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                </div>
-                                <a
-                                    className="md-button md-button--filled md-button--cta subscribe-btn"
-                                    href="https://www.youtube.com/@futbolconu"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                >
-                                    Subscribete
-                                </a>
-                            </div>
-                            <div className="schedule-column">
-                                <h2 className="section-title text-display-lg">Próximos videos</h2>
-                                <div className="schedule-list">
-                                    {SCHEDULE_ITEMS.map((item) => {
-                                        const match = `${item.homeTeam} vs ${item.awayTeam}`;
-                                        const homeFlagUrl = getFlagUrl(item.homeTeam);
-                                        const awayFlagUrl = getFlagUrl(item.awayTeam);
-                                        return (
-                                        <div key={`${item.date}-${match}`} className="schedule-item">
-                                            {homeFlagUrl && (
-                                                <span
-                                                    className="schedule-flag"
-                                                    style={{ "--flag-url": `url(${homeFlagUrl})` }}
-                                                    role="img"
-                                                    aria-label={`Bandera de ${item.homeTeam}`}
-                                                />
-                                            )}
-                                            <div className="schedule-info">
-                                                <p className="schedule-match">{match}</p>
-                                                <span>{item.note}</span>
-                                            </div>
-                                            {awayFlagUrl && (
-                                                <span
-                                                    className="schedule-flag"
-                                                    style={{ "--flag-url": `url(${awayFlagUrl})` }}
-                                                    role="img"
-                                                    aria-label={`Bandera de ${item.awayTeam}`}
-                                                />
-                                            )}
-                                        </div>
-                                    );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
                     {prediction && (
                         <>
                         <section 
@@ -2039,6 +2279,13 @@ const App = () => {
                             </h2>
                             <RelativeTime timestamp={predictionTimestamp} />
                         </div>
+                        {showModelScorecard && (
+                            <ModelScorecardSummary
+                                variant="results"
+                                summary={scorecardSummaryText}
+                                subtext={scorecardSubtext}
+                            />
+                        )}
                         {consensus && (
                             <div className="consensus-strip md-card md-card--filled">
                                 <div className="consensus-left">

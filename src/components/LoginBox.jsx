@@ -34,6 +34,13 @@ const clearPendingSignup = () => {
   window.localStorage.removeItem(PENDING_SIGNUP_KEY);
 };
 
+const getAuthRedirectTo = () => {
+  const envRedirect = String(import.meta.env.VITE_AUTH_REDIRECT_URL || "").trim();
+  if (envRedirect) return envRedirect;
+  if (typeof window === "undefined") return "";
+  return window.location.origin;
+};
+
 export default function LoginBox() {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
@@ -47,6 +54,7 @@ export default function LoginBox() {
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
   const isSignup = mode === "signup";
   const isBusy = isEmailLoading || isGoogleLoading;
+  const authRedirectTo = getAuthRedirectTo();
 
   const switchMode = (nextMode) => {
     setMode(nextMode);
@@ -76,7 +84,7 @@ export default function LoginBox() {
     const { error } = await supabase.auth.signInWithOtp({
       email: normalizedEmail,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: authRedirectTo,
         shouldCreateUser: isSignup,
       },
     });
@@ -93,7 +101,7 @@ export default function LoginBox() {
     } else {
       setStatus(
         isSignup
-          ? "Registro iniciado. Revisa tu email para completar el acceso."
+          ? "Revisa tu email para completar el acceso. Si ya tenías cuenta, este enlace iniciará sesión."
           : "Revisa tu email para el link/código de acceso."
       );
     }
@@ -115,7 +123,7 @@ export default function LoginBox() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: authRedirectTo,
         queryParams: {
           prompt: "select_account",
         },
