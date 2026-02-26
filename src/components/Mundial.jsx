@@ -474,9 +474,6 @@ const Mundial = ({ session, onRequestLogin }) => {
                                 <th>#</th>
                                 <th>Equipo</th>
                                 <th>P</th>
-                                <th>V</th>
-                                <th>E</th>
-                                <th>D</th>
                                 <th>DG</th>
                                 <th>Pts</th>
                             </tr>
@@ -485,11 +482,10 @@ const Mundial = ({ session, onRequestLogin }) => {
                             {selectedRanking?.map((row) => (
                                 <tr key={row.team.id}>
                                     <td>{row.rank}</td>
-                                    <td>{row.team.name}</td>
+                                    <td>
+                                        <span className="group-table-team-name">{row.team.name}</span>
+                                    </td>
                                     <td>{row.played}</td>
-                                    <td>{row.win}</td>
-                                    <td>{row.draw}</td>
-                                    <td>{row.loss}</td>
                                     <td>{row.goalDiff}</td>
                                     <td>{row.points}</td>
                                 </tr>

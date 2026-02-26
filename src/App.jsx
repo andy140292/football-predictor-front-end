@@ -92,6 +92,14 @@ const HOME_HERO_SLIDES = [
     { id: "ven-mex", src: venMexCopaAmerica, objectPosition: "center 34%" },
     { id: "ven-ecu", src: venEcuCopaAmerica, objectPosition: "center 36%" },
 ];
+const HOME_YOUTUBE_FEATURED = {
+    videoId: "8cAY80JYyNI?si=Hf77aXweQJx248al",
+    title: "Video destacado FutbolConU",
+};
+const HOME_YOUTUBE_CHANNEL_URL =
+    "https://www.youtube.com/@futbolconu?sub_confirmation=1";
+const HOME_YOUTUBE_EMBED_URL = `https://www.youtube-nocookie.com/embed/${HOME_YOUTUBE_FEATURED.videoId}?rel=0&modestbranding=1`;
+const HOME_YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${HOME_YOUTUBE_FEATURED.videoId}&utm_source=futbolconu&utm_medium=home_section&utm_campaign=featured_video`;
 const COUNTDOWN_TARGET = new Date("2026-06-11T00:00:00");
 
 const isMockMode = () => {
@@ -1801,6 +1809,47 @@ const App = () => {
                         </div>
                     </div>
 
+                    <section className="inicio-youtube-section" aria-label="Contenido destacado de YouTube">
+                        <div className="inicio-youtube-grid">
+                            <div className="inicio-youtube-video-col">
+                                <div className="inicio-youtube-video-wrap">
+                                    <iframe
+                                        className="inicio-youtube-embed"
+                                        src={HOME_YOUTUBE_EMBED_URL}
+                                        title={HOME_YOUTUBE_FEATURED.title}
+                                        loading="lazy"
+                                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowFullScreen
+                                    />
+                                </div>
+                                <a
+                                    className="inicio-youtube-video-link text-body-sm"
+                                    href={HOME_YOUTUBE_WATCH_URL}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Ver video en YouTube
+                                </a>
+                            </div>
+
+                            <div className="inicio-youtube-cta-col">
+                                <h2 className="text-display-lg inicio-youtube-title">SÍGUENOS EN YOUTUBE</h2>
+                                <p className="text-body inicio-youtube-copy">
+                                    Análisis, previas y contenido futbolero para vivir cada partido con más contexto.
+                                </p>
+                                <a
+                                    className="md-button md-button--filled md-button--cta inicio-youtube-cta"
+                                    href={HOME_YOUTUBE_CHANNEL_URL}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    aria-label="Abrir canal de YouTube de FutbolConU"
+                                >
+                                    Ir al canal de YouTube
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
                     <div className="inicio-link-grid">
                         <a
                             href={session ? "#national" : "#home"}
@@ -2090,14 +2139,16 @@ const App = () => {
                             </div>
                         </div>
                         {headToHeadLoading && (
-                            <p className="md-supporting-text text-caption">Cargando historial...</p>
+                            <p className="text-caption text--active">
+                                {headToHead ? "Actualizando historial..." : "Cargando historial..."}
+                            </p>
                         )}
                         {headToHeadError && (
                             <div className="md-inline-alert" role="alert">
                                 {headToHeadError}
                             </div>
                         )}
-                        {!headToHeadLoading && !headToHeadError && headToHead && (
+                        {headToHead && (
                             <div className="h2h-grid">
                                 <div className="h2h-column">
                                     {/* Stats Comparison Table */}
