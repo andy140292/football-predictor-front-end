@@ -1883,6 +1883,7 @@ const App = () => {
                 </section>
                 ) : (
                 <>
+                    <CountdownMarquee targetDate={COUNTDOWN_TARGET} />
                     <section
                         id="national"
                         ref={predictorRef}
@@ -1931,6 +1932,17 @@ const App = () => {
                             </div>
                         </div>
                     </section>
+                    {HERO_TAGS.length > 0 && (
+                        <div className="tagline-marquee">
+                            <div className="marquee-track">
+                                {HERO_TAGS.concat(HERO_TAGS).map((tag, idx) => (
+                                    <span key={`national-bottom-${tag}-${idx}`} className="marquee-tag">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     {prediction && (
                         <>
                         <section 
