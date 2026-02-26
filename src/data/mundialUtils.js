@@ -174,76 +174,86 @@ export const rankGroup = (stats, matches, predictions, options = {}) => {
     const fairPlayMap = options?.fairPlay || null;
     const rankingMap = options?.fifaRanking || null;
     const baseSorter = (a, b) => a.team.name.localeCompare(b.team.name, "es");
-    const byPoints = [...stats].sort((a, b) => b.points - a.points || baseSorter(a, b));
+    const byPoints = [...stats].sort(
+        (a, b) =>
+            b.points - a.points ||
+            b.goalDiff - a.goalDiff ||
+            b.goalsFor - a.goalsFor ||
+            baseSorter(a, b)
+    );
     const pointGroups = groupByKey(byPoints, (entry) => entry.points);
     const ordered = [];
 
     pointGroups.forEach((group) => {
-        if (group.length === 1) {
-            ordered.push(group[0]);
-            return;
-        }
+        const byGoalDiff = [...group].sort(
+            (a, b) => b.goalDiff - a.goalDiff || b.goalsFor - a.goalsFor || baseSorter(a, b)
+        );
+        const goalDiffGroups = groupByKey(byGoalDiff, (entry) => entry.goalDiff);
 
-        let remaining = [...group];
-        while (remaining.length > 1) {
-            const mini = buildMiniStats(remaining, matches, predictions);
-            const sorted = [...remaining].sort((a, b) => {
-                const diff = compareMiniStats(mini, a, b);
-                return diff !== 0 ? diff : baseSorter(a, b);
-            });
-            const groups = groupByKey(sorted, (entry) => {
-                const miniEntry = mini.get(String(entry.team.id)) || { points: 0, goalDiff: 0, goalsFor: 0 };
-                return `${miniEntry.points}|${miniEntry.goalDiff}|${miniEntry.goalsFor}`;
-            });
+        goalDiffGroups.forEach((goalDiffGroup) => {
+            const byGoalsFor = [...goalDiffGroup].sort((a, b) => b.goalsFor - a.goalsFor || baseSorter(a, b));
+            const goalsForGroups = groupByKey(byGoalsFor, (entry) => entry.goalsFor);
 
-            if (groups.length === 1) {
-                break;
-            }
+            goalsForGroups.forEach((goalsForGroup) => {
+                if (goalsForGroup.length === 1) {
+                    ordered.push(goalsForGroup[0]);
+                    return;
+                }
 
-            const nextRemaining = [];
-            groups.forEach((subGroup) => {
-                if (subGroup.length === 1) {
-                    ordered.push(subGroup[0]);
-                } else {
-                    nextRemaining.push(...subGroup);
+                let remaining = [...goalsForGroup];
+                while (remaining.length > 1) {
+                    const mini = buildMiniStats(remaining, matches, predictions);
+                    const sorted = [...remaining].sort((a, b) => {
+                        const diff = compareMiniStats(mini, a, b);
+                        return diff !== 0 ? diff : baseSorter(a, b);
+                    });
+                    const miniGroups = groupByKey(sorted, (entry) => {
+                        const miniEntry = mini.get(String(entry.team.id)) || { points: 0, goalDiff: 0, goalsFor: 0 };
+                        return `${miniEntry.points}|${miniEntry.goalDiff}|${miniEntry.goalsFor}`;
+                    });
+
+                    if (miniGroups.length === 1) {
+                        break;
+                    }
+
+                    const nextRemaining = [];
+                    miniGroups.forEach((subGroup) => {
+                        if (subGroup.length === 1) {
+                            ordered.push(subGroup[0]);
+                        } else {
+                            nextRemaining.push(...subGroup);
+                        }
+                    });
+                    remaining = nextRemaining;
+                }
+
+                if (remaining.length) {
+                    const criteria = [
+                        {
+                            key: (entry) => getFairPlayScore(entry.team, fairPlayMap),
+                            compare: (a, b) =>
+                                getFairPlayScore(b.team, fairPlayMap) - getFairPlayScore(a.team, fairPlayMap) ||
+                                baseSorter(a, b),
+                        },
+                        {
+                            key: (entry) => {
+                                const rank = getFifaRanking(entry.team, rankingMap);
+                                return Number.isFinite(rank) ? rank : Number.POSITIVE_INFINITY;
+                            },
+                            compare: (a, b) => {
+                                const rankA = getFifaRanking(a.team, rankingMap);
+                                const rankB = getFifaRanking(b.team, rankingMap);
+                                const safeA = Number.isFinite(rankA) ? rankA : Number.POSITIVE_INFINITY;
+                                const safeB = Number.isFinite(rankB) ? rankB : Number.POSITIVE_INFINITY;
+                                return safeA - safeB || baseSorter(a, b);
+                            },
+                        },
+                    ];
+                    const resolved = applySequentialCriteria(remaining, criteria, baseSorter);
+                    ordered.push(...resolved);
                 }
             });
-            remaining = nextRemaining;
-        }
-
-        if (remaining.length) {
-            const criteria = [
-                {
-                    key: (entry) => entry.goalDiff,
-                    compare: (a, b) => b.goalDiff - a.goalDiff || baseSorter(a, b),
-                },
-                {
-                    key: (entry) => entry.goalsFor,
-                    compare: (a, b) => b.goalsFor - a.goalsFor || baseSorter(a, b),
-                },
-                {
-                    key: (entry) => getFairPlayScore(entry.team, fairPlayMap),
-                    compare: (a, b) =>
-                        getFairPlayScore(b.team, fairPlayMap) - getFairPlayScore(a.team, fairPlayMap) ||
-                        baseSorter(a, b),
-                },
-                {
-                    key: (entry) => {
-                        const rank = getFifaRanking(entry.team, rankingMap);
-                        return Number.isFinite(rank) ? rank : Number.POSITIVE_INFINITY;
-                    },
-                    compare: (a, b) => {
-                        const rankA = getFifaRanking(a.team, rankingMap);
-                        const rankB = getFifaRanking(b.team, rankingMap);
-                        const safeA = Number.isFinite(rankA) ? rankA : Number.POSITIVE_INFINITY;
-                        const safeB = Number.isFinite(rankB) ? rankB : Number.POSITIVE_INFINITY;
-                        return safeA - safeB || baseSorter(a, b);
-                    },
-                },
-            ];
-            const resolved = applySequentialCriteria(remaining, criteria, baseSorter);
-            ordered.push(...resolved);
-        }
+        });
     });
 
     return ordered.map((entry, idx) => ({
