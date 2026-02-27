@@ -10,22 +10,22 @@ const LOGOS_DIR = path.join(PROJECT_ROOT, "public", "club-logos");
 const MAPPING_FILE = path.join(PROJECT_ROOT, "src", "data", "clubLogoMapping.js");
 
 const UEFA_TEAM_IDS = {
+  "Arsenal": "52280",
   "Atalanta": "52816",
   "Atlético Madrid": "50124",
-  "Benfica": "50147",
+  "Barcelona": "50080",
+  "Bayern München": "50037",
   "Bodø/Glimt": "59333",
-  "Club Brugge": "50043",
-  "Dortmund": "52758",
+  "Chelsea": "52914",
   "Galatasaray": "50067",
-  "Inter": "50138",
-  "Juventus": "50139",
   "Leverkusen": "50109",
-  "Monaco": "50023",
+  "Liverpool": "7889",
+  "Manchester City": "52919",
   "Newcastle United": "59324",
-  "Olympiacos": "2610",
   "Paris Saint-Germain": "52747",
-  "Qarabağ": "60609",
   "Real Madrid": "50051",
+  "Sporting CP": "50149",
+  "Tottenham Hotspur": "1652",
 };
 
 const sanitizeFileBase = (name) =>
@@ -106,6 +106,12 @@ const syncLogos = async () => {
       summary.failed += 1;
       console.error(`[fail] ${team}: ${error.message}`);
     }
+  }
+
+  if (summary.failed > 0) {
+    throw new Error(
+      `Aborting sync because ${summary.failed} logo download(s) failed. Existing logo mapping/files were left unchanged.`
+    );
   }
 
   const existingFiles = await fs.readdir(LOGOS_DIR);

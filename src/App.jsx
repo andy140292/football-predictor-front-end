@@ -100,6 +100,13 @@ const HOME_YOUTUBE_CHANNEL_URL =
     "https://www.youtube.com/@futbolconu?sub_confirmation=1";
 const HOME_YOUTUBE_EMBED_URL = `https://www.youtube-nocookie.com/embed/${HOME_YOUTUBE_FEATURED.videoId}?rel=0&modestbranding=1`;
 const HOME_YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${HOME_YOUTUBE_FEATURED.videoId}&utm_source=futbolconu&utm_medium=home_section&utm_campaign=featured_video`;
+const ABOUT_IMAGES = {
+    heroTop: "/imagenes/IMG_5933_opt.jpg",
+    heroLeft: "/imagenes/IMG_3099_opt.jpg",
+    heroRight: "/imagenes/IMG_3471_focus_enhanced_opt.jpg",
+    missionMain: "/imagenes/IMG_5601_opt.jpg",
+    impactMain: "/imagenes/IMG_5635_opt.jpg",
+};
 const COUNTDOWN_TARGET = new Date("2026-06-11T00:00:00");
 
 const isMockMode = () => {
@@ -1835,7 +1842,7 @@ const App = () => {
                             <div className="inicio-youtube-cta-col">
                                 <h2 className="text-display-lg inicio-youtube-title">SÍGUENOS EN YOUTUBE</h2>
                                 <p className="text-body inicio-youtube-copy">
-                                    Análisis, previas y contenido futbolero para vivir cada partido con más contexto.
+                                    Análisis, previas del Mundial 2026, Futbol Sudamericano, Champions League, y Libertadores.
                                 </p>
                                 <a
                                     className="md-button md-button--filled md-button--cta inicio-youtube-cta"
@@ -1893,42 +1900,102 @@ const App = () => {
                 </section>
                 ) : visiblePage === "about" ? (
                 <section id="about" className="about-page">
-                    <div className="section-header">
-                        <h1 className="section-title text-display-lg">Quiénes somos</h1>
-                        <p className="md-supporting-text text-body-sm">
-                            Combinamos pasión futbolera con modelos de datos para contar mejores historias antes y después de cada partido.
-                        </p>
-                    </div>
-                    <div className="about-grid">
-                        <article className="about-card md-card md-card--filled">
-                            <p className="section-kicker">Datos</p>
-                            <h2 className="text-h3">Predicción explicable</h2>
-                            <p className="text-body-sm">
-                                Consolidamos señales de múltiples modelos para mostrar probabilidades claras y comparables.
-                            </p>
-                        </article>
-                        <article className="about-card md-card md-card--filled">
-                            <p className="section-kicker">Comunidad</p>
-                            <h2 className="text-h3">Contenido para futboleros</h2>
-                            <p className="text-body-sm">
-                                Transformamos estadísticas en piezas que conectan con aficionados y creadores de contenido.
-                            </p>
-                        </article>
-                        <article className="about-card md-card md-card--filled">
-                            <p className="section-kicker">Pasión</p>
-                            <h2 className="text-h3">Contexto que emociona</h2>
-                            <p className="text-body-sm">
-                                Cada análisis busca responder una pregunta concreta: quién llega mejor y por qué.
-                            </p>
-                        </article>
-                    </div>
-                    <div className="about-links">
-                        {FOOTNOTE_LINKS.map((link) => (
-                            <a key={link.label} className="footer-link" href={link.href} target="_blank" rel="noreferrer">
-                                {link.label}
-                            </a>
-                        ))}
-                    </div>
+                    <article className="about-panel about-panel--hero md-card md-card--elevated">
+                        <div className="about-hero-grid">
+                            <div className="about-hero-copy">
+                                <h1 className="about-hero-title text-display-xl">
+                                    FUTBOLCONU: a lo sudamericano.
+                                </h1>
+                                <p className="text-body">
+                                    En FutbolConU creamos la mejor lectura del juego basado en datos para darte el mejor contexto de cada partido.
+                                </p>
+                                <a
+                                    className="md-button md-button--filled md-button--cta about-hero-cta"
+                                    href="https://youtube.com/@futbolconu"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    SUSBCRIBETE A NUESTRO CANAL
+                                </a>
+                            </div>
+
+                            <div className="about-hero-collage" aria-hidden="true">
+                                <figure className="about-collage-shot about-collage-shot--top">
+                                    <img src={ABOUT_IMAGES.heroTop} alt="" />
+                                </figure>
+                                <figure className="about-collage-shot about-collage-shot--left">
+                                    <img src={ABOUT_IMAGES.heroLeft} alt="" />
+                                </figure>
+                                <figure className="about-collage-shot about-collage-shot--right">
+                                    <img src={ABOUT_IMAGES.heroRight} alt="" />
+                                </figure>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article className="about-panel about-panel--mission md-card md-card--outlined">
+                        <div className="about-mission-grid">
+                            <figure className="about-mission-photo">
+                                <img src={ABOUT_IMAGES.missionMain} alt="" />
+                            </figure>
+                            <div className="about-mission-copy">
+                                <div>
+                                    <p className="section-kicker">Misión</p>
+                                    <h2 className="text-display-md">Nuestra misión</h2>
+                                    <p className="text-body-sm">
+                                        Ofrecer análisis claros y accionables para que aficionados, creadores y comunidades entiendan
+                                        mejor el contexto real detrás de cada partido.
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="section-kicker">Valor</p>
+                                    <h2 className="text-display-md">Nuestro valor</h2>
+                                    <p className="text-body-sm">
+                                        Combinamos datos, narrativa y experiencia futbolera para traducir probabilidades en historias
+                                        que conectan con la emoción del juego.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article className="about-panel about-panel--impact md-card md-card--outlined">
+                        <div className="about-impact-grid">
+                            <div className="about-impact-copy">
+                                <h2 className="text-display-md">
+                                    Nuestro éxito depende del éxito de nuestra comunidad futbolera.
+                                </h2>
+                                <p className="text-body-sm">
+                                    Impulsamos una cultura de análisis y conversación para que cada usuario tome mejores decisiones,
+                                    comparta mejores argumentos y disfrute más el futbol.
+                                </p>
+                                <a
+                                    href="#national"
+                                    className="md-button md-button--filled md-button--cta about-impact-cta"
+                                    onClick={(event) => handleHomeDestinationClick(event, "#national")}
+                                >
+                                    Ir al predictor
+                                </a>
+                                <div className="about-metrics" aria-label="Indicadores de impacto">
+                                    <div className="about-metric">
+                                        <strong>120+</strong>
+                                        <span>Análisis publicados</span>
+                                    </div>
+                                    <div className="about-metric">
+                                        <strong>300+</strong>
+                                        <span>Predicciones compartidas</span>
+                                    </div>
+                                    <div className="about-metric">
+                                        <strong>78%</strong>
+                                        <span>Precisión histórica</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <figure className="about-impact-photo">
+                                <img src={ABOUT_IMAGES.impactMain} alt="" />
+                            </figure>
+                        </div>
+                    </article>
                 </section>
                 ) : (
                 <>

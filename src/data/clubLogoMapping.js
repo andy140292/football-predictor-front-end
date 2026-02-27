@@ -1,20 +1,20 @@
 export const CLUB_LOGO_PATHS = {
+  "Arsenal": "/club-logos/arsenal.png",
   "Atalanta": "/club-logos/atalanta.png",
   "Atlético Madrid": "/club-logos/atletico-madrid.png",
-  "Benfica": "/club-logos/benfica.png",
+  "Barcelona": "/club-logos/barcelona.png",
+  "Bayern München": "/club-logos/bayern-munchen.png",
   "Bodø/Glimt": "/club-logos/bod-glimt.png",
-  "Club Brugge": "/club-logos/club-brugge.png",
-  "Dortmund": "/club-logos/dortmund.png",
+  "Chelsea": "/club-logos/chelsea.png",
   "Galatasaray": "/club-logos/galatasaray.png",
-  "Inter": "/club-logos/inter.png",
-  "Juventus": "/club-logos/juventus.png",
   "Leverkusen": "/club-logos/leverkusen.png",
-  "Monaco": "/club-logos/monaco.png",
+  "Liverpool": "/club-logos/liverpool.png",
+  "Manchester City": "/club-logos/manchester-city.png",
   "Newcastle United": "/club-logos/newcastle-united.png",
-  "Olympiacos": "/club-logos/olympiacos.png",
   "Paris Saint-Germain": "/club-logos/paris-saint-germain.png",
-  "Qarabağ": "/club-logos/qarabag.png",
   "Real Madrid": "/club-logos/real-madrid.png",
+  "Sporting CP": "/club-logos/sporting-cp.png",
+  "Tottenham Hotspur": "/club-logos/tottenham-hotspur.png",
 };
 
 const DEFAULT_CLUB_LOGO = "/club-logos/default-club-logo.svg";

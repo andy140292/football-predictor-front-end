@@ -1301,37 +1301,234 @@ textarea {
 .about-page {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
+    padding-top: 24px;
 }
 
-.about-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+.about-panel {
+    padding: clamp(20px, 3vw, 34px);
+    border-radius: 22px;
 }
 
-.about-card {
-    padding: 16px;
-    border-radius: var(--md-sys-shape-corner-medium);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.about-card h2,
-.about-card p {
+.about-panel h2,
+.about-panel p {
     margin: 0;
 }
 
-.about-card p {
+.about-panel--hero {
+    background:
+        linear-gradient(145deg, rgba(16, 27, 56, 0.88), rgba(9, 16, 34, 0.96)),
+        repeating-linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.04) 0,
+            rgba(255, 255, 255, 0.04) 1px,
+            transparent 1px,
+            transparent 180px
+        );
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.about-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(16px, 3vw, 42px);
+    align-items: stretch;
+}
+
+.about-hero-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    align-self: start;
+}
+
+.about-hero-copy .about-hero-title {
+    max-width: 100%;
+}
+
+.about-hero-copy .text-body {
+    max-width: 100%;
     color: var(--text-on-dark-muted);
 }
 
-.about-links {
+.about-hero-cta {
+    width: fit-content;
+    margin-top: 6px;
+}
+
+.about-hero-collage {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+}
+
+.about-collage-shot {
+    margin: 0;
+    position: absolute;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+}
+
+.about-collage-shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.about-collage-shot--top {
+    width: min(42%, 250px);
+    aspect-ratio: 1.3 / 1;
+    top: 0;
+    left: 34%;
+}
+
+.about-collage-shot--left {
+    width: min(44%, 270px);
+    aspect-ratio: 1.2 / 1;
+    left: 2%;
+    top: 28%;
+}
+
+.about-collage-shot--right {
+    width: min(50%, 300px);
+    aspect-ratio: 1.12 / 1;
+    right: 0;
+    top: 34%;
+}
+
+.about-collage-shot--right img {
+    object-position: center;
+    transform: none;
+    transform-origin: center;
+}
+
+.about-panel--mission {
+    background: linear-gradient(145deg, rgba(14, 25, 54, 0.82), rgba(8, 14, 30, 0.9));
+}
+
+.about-mission-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: clamp(16px, 2.6vw, 34px);
+    align-items: stretch;
+}
+
+.about-mission-photo {
+    margin: 0;
+    position: relative;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+.about-mission-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.about-mission-copy {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 22px;
+}
+
+.about-mission-copy .text-body-sm {
+    margin-top: 8px;
+    max-width: 42ch;
+    color: var(--text-on-dark-muted);
+}
+
+.about-panel--impact {
+    background: linear-gradient(145deg, rgba(14, 25, 54, 0.82), rgba(8, 14, 30, 0.9));
+}
+
+.about-impact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(16px, 2.8vw, 36px);
+    align-items: stretch;
+}
+
+.about-impact-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.about-impact-copy h2 {
+    max-width: 100%;
+}
+
+.about-impact-copy .text-body-sm {
+    max-width: 44ch;
+    color: var(--text-on-dark-muted);
+}
+
+.about-impact-cta {
+    width: fit-content;
+    margin-top: 2px;
+}
+
+.about-metrics {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.about-metric {
+    padding: 12px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.about-metric strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(24px, 2.9vw, 36px);
+    line-height: 1;
+    letter-spacing: 0.8px;
+    color: var(--text-on-dark);
+}
+
+.about-metric span {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-on-dark-muted);
+}
+
+.about-impact-photo {
+    margin: 0;
+    position: relative;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+.about-impact-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .inicio-lock-note {
@@ -3225,9 +3422,42 @@ textarea {
         max-width: 100%;
     }
 
-    .inicio-link-grid,
-    .about-grid {
+    .inicio-link-grid {
         grid-template-columns: 1fr;
+    }
+
+    .about-hero-grid,
+    .about-mission-grid,
+    .about-impact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-hero-copy .about-hero-title,
+    .about-impact-copy h2,
+    .about-impact-copy .text-body-sm {
+        max-width: 100%;
+    }
+
+    .about-hero-collage {
+        min-height: 330px;
+    }
+
+    .about-collage-shot--top {
+        width: min(42%, 220px);
+        left: auto;
+        right: 14%;
+    }
+
+    .about-collage-shot--left {
+        width: min(54%, 280px);
+    }
+
+    .about-collage-shot--right {
+        width: min(56%, 290px);
+    }
+
+    .about-metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .inicio-link-card {
@@ -3310,13 +3540,54 @@ textarea {
         min-height: 250px;
     }
 
-    .inicio-link-card,
-    .about-card {
+    .inicio-link-card {
         padding: 14px;
     }
 
     .inicio-link-card {
         min-height: 185px;
+    }
+
+    .about-panel {
+        padding: 16px 14px;
+    }
+
+    .about-hero-collage {
+        min-height: 270px;
+    }
+
+    .about-collage-shot {
+        border-radius: 12px;
+    }
+
+    .about-collage-shot--top {
+        width: min(46%, 170px);
+        right: 2%;
+    }
+
+    .about-collage-shot--left {
+        width: min(58%, 205px);
+        top: 30%;
+    }
+
+    .about-collage-shot--right {
+        width: min(62%, 220px);
+        top: 38%;
+    }
+
+    .about-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .about-impact-media {
+        min-height: 290px;
+    }
+
+    .about-impact-photo-secondary {
+        width: min(40%, 130px);
+        left: 8px;
+        bottom: 8px;
+        border-radius: 10px;
     }
 
     .nav-inner {
