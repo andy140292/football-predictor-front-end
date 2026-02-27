@@ -15,6 +15,7 @@ const buildOrderedTeams = (options) =>
 
 const Search = ({ label, placeholder, searchTerm, setSearchTerm, options = TEAM_OPTIONS_ES }) => {
     const [open, setOpen] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(-1);
     const boxRef = useRef(null);
     const inputId = useId();
     const listId = useId();
@@ -53,6 +54,67 @@ const Search = ({ label, placeholder, searchTerm, setSearchTerm, options = TEAM_
     const select = (team) => {
         setSearchTerm(team);
         setOpen(false);
+        setActiveIndex(-1);
+    };
+
+    useEffect(() => {
+        if (!open) {
+            setActiveIndex(-1);
+            return;
+        }
+        setActiveIndex((prev) => {
+            if (!filtered.length) return -1;
+            if (prev < 0 || prev >= filtered.length) return 0;
+            return prev;
+        });
+    }, [open, filtered]);
+
+    useEffect(() => {
+        if (!open || activeIndex < 0) return;
+        const optionId = `${listId}-option-${activeIndex}`;
+        const optionNode = document.getElementById(optionId);
+        optionNode?.scrollIntoView({ block: "nearest" });
+    }, [open, activeIndex, listId]);
+
+    const handleKeyDown = (event) => {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!open) {
+                setOpen(true);
+                return;
+            }
+            if (!filtered.length) return;
+            setActiveIndex((prev) => (prev + 1 >= filtered.length ? 0 : prev + 1));
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (!open) {
+                setOpen(true);
+                return;
+            }
+            if (!filtered.length) return;
+            setActiveIndex((prev) => (prev <= 0 ? filtered.length - 1 : prev - 1));
+            return;
+        }
+
+        if (event.key === "Enter" && open && activeIndex >= 0 && filtered[activeIndex]) {
+            event.preventDefault();
+            select(filtered[activeIndex]);
+            return;
+        }
+
+        if (event.key === "Escape") {
+            setOpen(false);
+            setActiveIndex(-1);
+            return;
+        }
+
+        if (event.key === "Tab") {
+            setOpen(false);
+            setActiveIndex(-1);
+        }
     };
 
     return (
@@ -72,11 +134,14 @@ const Search = ({ label, placeholder, searchTerm, setSearchTerm, options = TEAM_
                         setOpen(true);
                     }}
                     onFocus={() => setOpen(true)}
+                    onKeyDown={handleKeyDown}
                     autoComplete="off"
                     role="combobox"
                     aria-autocomplete="list"
+                    aria-haspopup="listbox"
                     aria-expanded={open}
                     aria-controls={listId}
+                    aria-activedescendant={open && activeIndex >= 0 ? `${listId}-option-${activeIndex}` : undefined}
                 />
                 {label && (
                     <label className="md-text-field__label" htmlFor={inputId}>
@@ -88,11 +153,15 @@ const Search = ({ label, placeholder, searchTerm, setSearchTerm, options = TEAM_
 
             {open && filtered.length > 0 && (
                 <ul id={listId} className="search-dropdown" role="listbox">
-                    {filtered.map((team) => (
+                    {filtered.map((team, index) => (
                         <li
                             key={team}
+                            id={`${listId}-option-${index}`}
                             role="option"
+                            aria-selected={index === activeIndex}
+                            className={index === activeIndex ? "search-dropdown-option--active" : ""}
                             onMouseDown={(e) => e.preventDefault()}
+                            onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => select(team)}
                         >
                             {team}

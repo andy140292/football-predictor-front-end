@@ -482,7 +482,7 @@ textarea {
 
 .md-supporting-text {
     margin: 0;
-    color: var(--palette-ink-muted);
+    color: var(--text-on-dark-muted);
 }
 
 .md-text-field {
@@ -678,11 +678,11 @@ textarea {
 }
 
 .nav-link--locked {
-    opacity: 0.58;
+    color: #9da7be;
 }
 
 .nav-link--locked:hover {
-    color: var(--text-on-dark-muted);
+    color: #9da7be;
     background: transparent;
     border-color: transparent;
 }
@@ -739,7 +739,7 @@ textarea {
     background: var(--surface-dark);
     color: var(--text-on-dark-muted);
     font-family: var(--font-body);
-    font-size: 12px;
+    font-size: 13px;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
@@ -765,6 +765,7 @@ textarea {
 
 .nav-account-email {
     min-width: 0;
+    max-width: min(26vw, 220px);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2684,6 +2685,12 @@ textarea {
     background: var(--surface-dark-hover);
 }
 
+.search-dropdown-option--active,
+.search-dropdown li.search-dropdown-option--active:hover {
+    background: rgba(64, 152, 200, 0.2);
+    color: #ffffff;
+}
+
 .search-dropdown-empty {
     position: absolute;
     top: calc(100% + 8px);
@@ -2721,6 +2728,37 @@ textarea {
     max-width: 400px;
     position: relative;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.login-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-on-dark-muted);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.login-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text-on-dark);
+}
+
+.login-modal-close:focus-visible {
+    outline: none;
+    border-color: var(--accent-hover);
+    box-shadow: 0 0 0 3px rgba(64, 152, 200, 0.28);
 }
 
 .login-modal-title {
@@ -3634,6 +3672,10 @@ textarea {
 
     .nav-account-trigger {
         max-width: min(58vw, 260px);
+    }
+
+    .nav-account-email {
+        max-width: min(42vw, 176px);
     }
 
     .nav-account-menu {

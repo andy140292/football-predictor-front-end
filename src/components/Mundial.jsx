@@ -310,6 +310,7 @@ const Mundial = ({ session, onRequestLogin }) => {
                             type="number"
                             min="0"
                             className="score-input"
+                            aria-label={`Goles de ${homeLabel} contra ${awayLabel}`}
                             value={prediction.homeScore}
                             disabled={!canScore}
                             onChange={(e) => updateMatchScore(match.id, "homeScore", e.target.value)}
@@ -319,6 +320,7 @@ const Mundial = ({ session, onRequestLogin }) => {
                             type="number"
                             min="0"
                             className="score-input"
+                            aria-label={`Goles de ${awayLabel} contra ${homeLabel}`}
                             value={prediction.awayScore}
                             disabled={!canScore}
                             onChange={(e) => updateMatchScore(match.id, "awayScore", e.target.value)}
@@ -414,6 +416,7 @@ const Mundial = ({ session, onRequestLogin }) => {
                                                 type="number"
                                                 min="0"
                                                 className="score-input"
+                                                aria-label={`Goles de ${match.home.name} contra ${match.away.name}`}
                                                 value={prediction.homeScore}
                                                 onChange={(e) =>
                                                     updateMatchScore(match.id, "homeScore", e.target.value)
@@ -424,6 +427,7 @@ const Mundial = ({ session, onRequestLogin }) => {
                                                 type="number"
                                                 min="0"
                                                 className="score-input"
+                                                aria-label={`Goles de ${match.away.name} contra ${match.home.name}`}
                                                 value={prediction.awayScore}
                                                 onChange={(e) =>
                                                     updateMatchScore(match.id, "awayScore", e.target.value)

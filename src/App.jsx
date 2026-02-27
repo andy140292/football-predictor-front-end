@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 import Search from "./components/Search";
 import { supabase } from "./supabaseClient";
@@ -71,6 +71,15 @@ const H2H_TOURNAMENT_FILTERS = [
     ] },
 ];
 
+const resolveH2hTournaments = (filters) => {
+    if (filters.includes("all")) return H2H_TOURNAMENTS;
+    const values = filters.flatMap((filterId) => {
+        const found = H2H_TOURNAMENT_FILTERS.find((filter) => filter.id === filterId);
+        return found ? found.values : [];
+    });
+    return Array.from(new Set(values));
+};
+
 const NAV_LINKS = [
     { id: "home", label: "Inicio" },
     { id: "national", label: "Selecciones" },
@@ -93,7 +102,7 @@ const HOME_HERO_SLIDES = [
     { id: "ven-ecu", src: venEcuCopaAmerica, objectPosition: "center 36%" },
 ];
 const HOME_YOUTUBE_FEATURED = {
-    videoId: "8cAY80JYyNI?si=Hf77aXweQJx248al",
+    videoId: "8cAY80JYyNI",
     title: "Video destacado FutbolConU",
 };
 const HOME_YOUTUBE_CHANNEL_URL =
@@ -239,6 +248,12 @@ const formatRelative = (timestamp, nowMs) => {
 
 const CountdownMarquee = memo(function CountdownMarquee({ targetDate }) {
     const [now, setNow] = useState(() => Date.now());
+
+    useEffect(() => {
+        setNow(Date.now());
+        const interval = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     const countdown = getCountdown(targetDate, now);
     const countdownTags = [
@@ -496,12 +511,12 @@ const App = () => {
     const requestControllerRef = useRef(null);
     const modelScorecardRequestRef = useRef(0);
     const accountMenuRef = useRef(null);
+    const loginModalRef = useRef(null);
     const h2hRequestRef = useRef({ teamsKey: "", filtersKey: "" });
     const teamVsConfedRequestRef = useRef({ teamsKey: "" });
     const [navHidden, setNavHidden] = useState(false);
     const lastScrollYRef = useRef(0);
     const tickingRef = useRef(false);
-    const [shareStatus, setShareStatus] = useState("");
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [authInitialized, setAuthInitialized] = useState(false);
     const [authNotice, setAuthNotice] = useState("");
@@ -806,6 +821,68 @@ const App = () => {
     }, [session]);
 
     useEffect(() => {
+        if (!showLoginModal) return;
+
+        const modalNode = loginModalRef.current;
+        if (!modalNode) return;
+
+        const previousOverflow = document.body.style.overflow;
+        const previouslyFocused =
+            document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        document.body.style.overflow = "hidden";
+
+        const getFocusableNodes = () =>
+            Array.from(
+                modalNode.querySelectorAll(
+                    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                )
+            ).filter((node) => node instanceof HTMLElement && node.offsetParent !== null);
+
+        const focusableNodes = getFocusableNodes();
+        if (focusableNodes[0] instanceof HTMLElement) {
+            focusableNodes[0].focus();
+        } else {
+            modalNode.focus();
+        }
+
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape" && !needsRegistrationCompletion) {
+                event.preventDefault();
+                setShowLoginModal(false);
+                return;
+            }
+
+            if (event.key !== "Tab") return;
+            const nodes = getFocusableNodes();
+            if (!nodes.length) {
+                event.preventDefault();
+                return;
+            }
+
+            const first = nodes[0];
+            const last = nodes[nodes.length - 1];
+            if (!(first instanceof HTMLElement) || !(last instanceof HTMLElement)) return;
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = previousOverflow;
+            if (previouslyFocused) {
+                previouslyFocused.focus();
+            }
+        };
+    }, [showLoginModal, needsRegistrationCompletion]);
+
+    useEffect(() => {
         if (!session || page !== "national" || mockMode || !NATIONAL_MODEL_VERSION) {
             setModelScorecard(null);
             setModelScorecardLoading(false);
@@ -885,15 +962,6 @@ const App = () => {
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
-
-    const resolveH2hTournaments = (filters) => {
-        if (filters.includes("all")) return H2H_TOURNAMENTS;
-        const values = filters.flatMap((filterId) => {
-            const found = H2H_TOURNAMENT_FILTERS.find((filter) => filter.id === filterId);
-            return found ? found.values : [];
-        });
-        return Array.from(new Set(values));
-    };
 
     const toggleH2hFilter = (filterId) => {
         setH2hFilters((prev) => {
@@ -1021,7 +1089,7 @@ const App = () => {
         }
     };
 
-    const fetchHeadToHead = async (homeTeamPayload, awayTeamPayload, token, filters) => {
+    const fetchHeadToHead = useCallback(async (homeTeamPayload, awayTeamPayload, token, filters) => {
         const response = await fetch(`${API_BASE_URL}/head-to-head`, {
             method: "POST",
             headers: {
@@ -1040,9 +1108,9 @@ const App = () => {
             throw new Error(message);
         }
         return await response.json();
-    };
+    }, []);
 
-    const loadHeadToHead = async (homeTeamPayload, awayTeamPayload, token, filters) => {
+    const loadHeadToHead = useCallback(async (homeTeamPayload, awayTeamPayload, token, filters) => {
         try {
             setHeadToHeadLoading(true);
             setHeadToHeadError("");
@@ -1084,9 +1152,9 @@ const App = () => {
         } finally {
             setHeadToHeadLoading(false);
         }
-    };
+    }, [fetchHeadToHead]);
 
-    const fetchTeamVsConfed = async (team, opponentConfederation, token) => {
+    const fetchTeamVsConfed = useCallback(async (team, opponentConfederation, token) => {
         const response = await fetch(`${API_BASE_URL}/team-vs-confed`, {
             method: "POST",
             headers: {
@@ -1108,9 +1176,9 @@ const App = () => {
             throw new Error(message);
         }
         return await response.json();
-    };
+    }, []);
 
-    const fetchTeamVsConfedWithVariants = async (team, opponentConfederation, token) => {
+    const fetchTeamVsConfedWithVariants = useCallback(async (team, opponentConfederation, token) => {
         const variants = getApiTeamVariants(team);
         let lastError = null;
         let hadSuccess = false;
@@ -1129,7 +1197,7 @@ const App = () => {
             throw lastError;
         }
         return null;
-    };
+    }, [fetchTeamVsConfed]);
 
     const deriveOpponentStats = (payload) => {
         if (!payload) return null;
@@ -1142,7 +1210,7 @@ const App = () => {
         };
     };
 
-    const loadTeamVsConfed = async (homeTeamPayload, awayTeamPayload, token) => {
+    const loadTeamVsConfed = useCallback(async (homeTeamPayload, awayTeamPayload, token) => {
         try {
             setTeamVsConfedLoading(true);
             setTeamVsConfedError("");
@@ -1173,7 +1241,7 @@ const App = () => {
         } finally {
             setTeamVsConfedLoading(false);
         }
-    };
+    }, [fetchTeamVsConfedWithVariants]);
 
     useEffect(() => {
         if (!lastRequestedTeams) return;
@@ -1197,7 +1265,7 @@ const App = () => {
             }
             loadHeadToHead(lastRequestedTeams.homeTeam, lastRequestedTeams.awayTeam, token, h2hFilters);
         });
-    }, [h2hFilters, lastRequestedTeams]);
+    }, [h2hFilters, lastRequestedTeams, loadHeadToHead]);
 
     useEffect(() => {
         if (!lastRequestedTeams) return;
@@ -1218,7 +1286,7 @@ const App = () => {
             teamVsConfedRequestRef.current = { teamsKey };
             loadTeamVsConfed(lastRequestedTeams.homeTeam, lastRequestedTeams.awayTeam, token);
         });
-    }, [lastRequestedTeams]);
+    }, [lastRequestedTeams, loadTeamVsConfed]);
 
     const fetchPrediction = async () => {
         const homeCanonical = resolveCanonicalTeam(homeTeam);
@@ -1238,7 +1306,6 @@ const App = () => {
             const awayTeamPayload = awayCanonical || awayTeam;
             setIsLoading(true);
             setErrorMessage("");
-            setShareStatus("");
             setPrediction(buildMockPrediction());
             setFutureMatches([]);
             setSelectedOutcomeByMatchId({});
@@ -1283,7 +1350,6 @@ const App = () => {
 
             setIsLoading(true);
             setErrorMessage("");
-            setShareStatus("");
             setFutureMatchVoteError("");
 
             if (requestControllerRef.current) {
@@ -1450,85 +1516,6 @@ const App = () => {
         return `${day}/${month}/${year}`;
     };
 
-    const buildShareCard = async () => {
-        if (!consensus) return;
-        const width = 1200;
-        const height = 675;
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        if (document?.fonts?.ready) {
-            try {
-                await document.fonts.ready;
-            } catch {
-                // ignore font readiness errors
-            }
-        }
-
-        const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, "#0f2f5b");
-        gradient.addColorStop(0.6, "#1f4b8f");
-        gradient.addColorStop(1, "#2b5fae");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        ctx.fillRect(0, 0, width, 120);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = '600 28px "IBM Plex Sans", sans-serif';
-        ctx.fillText("FutbolConU Predictor", 64, 72);
-
-        ctx.font = '700 86px "Teko", "IBM Plex Sans", sans-serif';
-        ctx.fillText(`${displayTeams.homeTeam} vs ${displayTeams.awayTeam}`, 64, 220);
-
-        ctx.font = '600 28px "IBM Plex Sans", sans-serif';
-        ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-        ctx.fillText("Consenso", 64, 290);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = '700 64px "Teko", "IBM Plex Sans", sans-serif';
-        const bestLabel = outcomeLabel(consensus.bestKey);
-        const bestPct = toPct(consensus.avg[consensus.bestKey]);
-        ctx.fillText(`Favorito: ${bestLabel} ${bestPct}`, 64, 360);
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-        ctx.font = '500 22px "IBM Plex Sans", sans-serif';
-        ctx.fillText("Comparte tu previa en comunidad", 64, 412);
-
-        ctx.fillStyle = "#d12c36";
-        ctx.fillRect(64, 470, width - 128, 8);
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.font = '500 20px "IBM Plex Sans", sans-serif';
-        ctx.fillText(`Modelos: ${consensus.count}`, 64, 520);
-
-        const dataUrl = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = `futbolconu-${displayTeams.homeTeam}-vs-${displayTeams.awayTeam}.png`
-            .toLowerCase()
-            .replace(/\s+/g, "-");
-        link.click();
-    };
-
-    const handleCopyShare = async () => {
-        if (!consensus) return;
-        const bestLabel = outcomeLabel(consensus.bestKey);
-        const bestPct = toPct(consensus.avg[consensus.bestKey]);
-        const summary = `FutbolConU Predictor | ${displayTeams.homeTeam} vs ${displayTeams.awayTeam} | Favorito: ${bestLabel} ${bestPct}`;
-        try {
-            await navigator.clipboard.writeText(summary);
-            setShareStatus("Resumen copiado.");
-        } catch {
-            setShareStatus("No se pudo copiar.");
-        }
-        setTimeout(() => setShareStatus(""), 2400);
-    };
-
     const handleSubmitFutureMatchPrediction = async (matchId, predictedOutcome) => {
         if (!matchId || !predictedOutcome) return;
         if (lockedMatchIds[matchId] || submittingMatchId === matchId) return;
@@ -1641,12 +1628,12 @@ const App = () => {
         }
     };
 
-    const handleProtectedRouteAttempt = () => {
+    const handleProtectedRouteAttempt = ({ showPrompt = true } = {}) => {
         if (typeof window !== "undefined" && window.location.hash !== "#home") {
             window.location.hash = "#home";
         }
         setPage("home");
-        setShowLoginModal(false);
+        setShowLoginModal(showPrompt);
     };
 
     const handleNavLinkClick = (event, linkId) => {
@@ -1664,6 +1651,12 @@ const App = () => {
         }
         event.preventDefault();
         handleProtectedRouteAttempt();
+    };
+
+    const handleLoginModalOverlayClick = (event) => {
+        if (event.target !== event.currentTarget) return;
+        if (needsRegistrationCompletion) return;
+        setShowLoginModal(false);
     };
 
     return (
@@ -1862,7 +1855,6 @@ const App = () => {
                             href={session ? "#national" : "#home"}
                             className={`inicio-link-card inicio-link-card--national md-card md-card--filled ${!session ? "inicio-link-card--locked" : ""}`}
                             onClick={(event) => handleHomeDestinationClick(event, "#national")}
-                            aria-disabled={!session}
                         >
                             <h2 className="text-display-md inicio-link-title">Predictor selecciones</h2>
                             <p className="text-body-sm inicio-link-copy">
@@ -1873,7 +1865,6 @@ const App = () => {
                             href={session ? "#champions" : "#home"}
                             className={`inicio-link-card inicio-link-card--champions md-card md-card--filled ${!session ? "inicio-link-card--locked" : ""}`}
                             onClick={(event) => handleHomeDestinationClick(event, "#champions")}
-                            aria-disabled={!session}
                         >
                             <h2 className="text-display-md inicio-link-title">Predictor Champions</h2>
                             <p className="text-body-sm inicio-link-copy">
@@ -1884,7 +1875,6 @@ const App = () => {
                             href={session ? "#about" : "#home"}
                             className={`inicio-link-card inicio-link-card--about md-card md-card--filled ${!session ? "inicio-link-card--locked" : ""}`}
                             onClick={(event) => handleHomeDestinationClick(event, "#about")}
-                            aria-disabled={!session}
                         >
                             <h2 className="text-display-md inicio-link-title">Nosotros</h2>
                             <p className="text-body-sm inicio-link-copy">
@@ -2500,33 +2490,6 @@ const App = () => {
                                 </div>
                             </div>
                         )}
-                        {/* <TODO>Tarjeta para compartir</TODO> */}
-                        {/* {consensus && (
-                            <div className="share-card">
-                                <div className="share-preview">
-                                    <p className="share-kicker">Tarjeta para compartir</p>
-                                    <h3 className="share-title">
-                                        {displayTeams.homeTeam} <span>vs</span> {displayTeams.awayTeam}
-                                    </h3>
-                                    <p className="share-pick">
-                                        Favorito: {outcomeLabel(consensus.bestKey)} {toPct(consensus.avg[consensus.bestKey])}
-                                    </p>
-                                </div>
-                                <div className="share-actions">
-                                    <button type="button" className="share-button" onClick={buildShareCard}>
-                                        Descargar tarjeta
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="share-button share-button--ghost"
-                                        onClick={handleCopyShare}
-                                    >
-                                        Copiar resumen
-                                    </button>
-                                    {shareStatus && <span className="share-status">{shareStatus}</span>}
-                                </div>
-                            </div>
-                        )} */}
                         <div className="results-grid">
                             <div className={`models-card md-card md-card--elevated reveal ${resultsInView ? "reveal-visible" : "reveal-hidden"}`}>
                                 <div className="section-header section-header--balanced">
@@ -2604,9 +2567,26 @@ const App = () => {
             </footer>
 
             {showLoginModal && (
-                <div className="login-modal-overlay">
-                    <div className="login-modal">
-                        <h2 className="login-modal-title text-display-md">
+                <div className="login-modal-overlay" onClick={handleLoginModalOverlayClick}>
+                    <div
+                        className="login-modal"
+                        ref={loginModalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="login-modal-title"
+                        tabIndex={-1}
+                    >
+                        {!needsRegistrationCompletion && (
+                            <button
+                                type="button"
+                                className="login-modal-close"
+                                onClick={() => setShowLoginModal(false)}
+                                aria-label="Cerrar diálogo"
+                            >
+                                Cerrar
+                            </button>
+                        )}
+                        <h2 id="login-modal-title" className="login-modal-title text-display-md">
                             {needsRegistrationCompletion ? "Completa tu registro" : "Inicia sesión"}
                         </h2>
                         {needsRegistrationCompletion ? (
