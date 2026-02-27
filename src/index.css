@@ -1442,12 +1442,28 @@ textarea {
     flex-direction: column;
     justify-content: flex-start;
     gap: 22px;
+    width: 100%;
+    min-width: 0;
+}
+
+.about-mission-copy > div {
+    width: 100%;
 }
 
 .about-mission-copy .text-body-sm {
     margin-top: 8px;
-    max-width: 42ch;
+    max-width: 100%;
     color: var(--text-on-dark-muted);
+}
+
+.about-values-list {
+    list-style: disc;
+    list-style-position: outside;
+    padding-left: 1.25rem;
+}
+
+.about-values-list li + li {
+    margin-top: 6px;
 }
 
 .about-panel--impact {

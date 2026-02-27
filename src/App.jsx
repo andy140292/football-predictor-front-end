@@ -1940,20 +1940,21 @@ const App = () => {
                             </figure>
                             <div className="about-mission-copy">
                                 <div>
-                                    <p className="section-kicker">Misión</p>
                                     <h2 className="text-display-md">Nuestra misión</h2>
                                     <p className="text-body-sm">
-                                        Ofrecer análisis claros y accionables para que aficionados, creadores y comunidades entiendan
-                                        mejor el contexto real detrás de cada partido.
+                                        En Fútbol con U combinamos datos y pasión para ofrecerte el análisis más completo del fútbol.
+
+                                        Usamos simulaciones, tendencias históricas y modelos predictivos para que los aficionados entiendan el juego más allá de opiniones — especialmente rumbo al Mundial 2026.
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="section-kicker">Valor</p>
-                                    <h2 className="text-display-md">Nuestro valor</h2>
-                                    <p className="text-body-sm">
-                                        Combinamos datos, narrativa y experiencia futbolera para traducir probabilidades en historias
-                                        que conectan con la emoción del juego.
-                                    </p>
+                                    <h2 className="text-display-md">Nuestros valores</h2>
+                                    <ul className="text-body-sm about-values-list">
+                                        <li><strong>Datos primero</strong> – Cada predicción está respaldada por análisis estructurado.</li>
+                                        <li><strong>Transparencia</strong> – Explicamos los números detrás de cada resultado.</li>
+                                        <li><strong>Pasión</strong> – El fútbol se vive con emoción, y la respetamos.</li>
+                                        <li><strong>Comunidad</strong> – El debate nos hace mejores.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
