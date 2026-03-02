@@ -470,49 +470,51 @@ const Mundial = ({ session, onRequestLogin }) => {
                     </div>
                 </div>
 
-                <div className="group-table">
-                    <h3 className="text-h3">Tabla {selectedGroupObj?.name}</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Equipo</th>
-                                <th>P</th>
-                                <th>DG</th>
-                                <th>Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {selectedRanking?.map((row) => (
-                                <tr key={row.team.id}>
-                                    <td>{row.rank}</td>
-                                    <td>
-                                        <span className="group-table-team-name">{row.team.name}</span>
-                                    </td>
-                                    <td>{row.played}</td>
-                                    <td>{row.goalDiff}</td>
-                                    <td>{row.points}</td>
+                <div className="group-sidebar">
+                    <div className="group-table">
+                        <h3 className="text-h3">Tabla {selectedGroupObj?.name}</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Equipo</th>
+                                    <th>P</th>
+                                    <th>DG</th>
+                                    <th>Pts</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                            </thead>
+                            <tbody>
+                                {selectedRanking?.map((row) => (
+                                    <tr key={row.team.id}>
+                                        <td>{row.rank}</td>
+                                        <td>
+                                            <span className="group-table-team-name">{row.team.name}</span>
+                                        </td>
+                                        <td>{row.played}</td>
+                                        <td>{row.goalDiff}</td>
+                                        <td>{row.points}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-            <div className="third-place-card">
-                <h3 className="text-h3">Mejores terceros</h3>
-                <div className="third-list">
-                    {rankedThird.map((team) => (
-                        <div
-                            key={team.team.id}
-                            className={`third-item ${topThirdIds.has(String(team.team.id)) ? "third-item--qualified" : ""}`}
-                        >
-                            <span>{team.groupLetter}</span>
-                            <strong>{team.team.name}</strong>
-                            <span>{team.points} pts</span>
-                            <span>DG {team.goalDiff}</span>
+                    <div className="third-place-card">
+                        <h3 className="text-h3">Mejores terceros</h3>
+                        <div className="third-list">
+                            {rankedThird.map((team) => (
+                                <div
+                                    key={team.team.id}
+                                    className={`third-item ${topThirdIds.has(String(team.team.id)) ? "third-item--qualified" : ""}`}
+                                >
+                                    <span>{team.groupLetter}</span>
+                                    <strong>{team.team.name}</strong>
+                                    <span>{team.points} pts</span>
+                                    <span>DG {team.goalDiff}</span>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
 

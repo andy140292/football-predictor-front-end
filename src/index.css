@@ -4061,6 +4061,26 @@ textarea {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: 18px;
+    align-items: stretch;
+}
+
+.group-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 0;
+}
+
+.third-place-card {
+    flex: 1;
+    min-height: 0;
+}
+
+.third-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
 }
 
 .group-matches,
@@ -4087,6 +4107,10 @@ textarea {
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+.group-matches .group-actions {
+    margin-top: auto;
 }
 
 .match-row {
