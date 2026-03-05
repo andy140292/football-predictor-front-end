@@ -4,6 +4,7 @@ import Search from "./components/Search";
 import { supabase } from "./supabaseClient";
 import ModelCard from "./components/ModelCard";
 import FutureMatchPickCard from "./components/FutureMatchPickCard";
+import LegalModal from "./components/LegalModal";
 import { getFlagCodeForTeam, getSpanishTeamName, resolveCanonicalTeam } from "./data/teamMapping";
 import { getTeamConfed } from "./data/teamConfed";
 import useInView from "./hooks/useInView";
@@ -433,6 +434,8 @@ const CompleteRegistrationCard = memo(function CompleteRegistrationCard({
     isSubmitting,
     error,
 }) {
+    const [legalModalType, setLegalModalType] = useState("");
+
     return (
         <div className="auth-card md-card md-card--outlined">
             <p className="auth-email-note text-body-sm">
@@ -447,8 +450,31 @@ const CompleteRegistrationCard = memo(function CompleteRegistrationCard({
                         onChange={(e) => onTermsChange(e.target.checked)}
                     />
                     <span>
-                        Acepto los <a href="/terms" target="_blank" rel="noreferrer">términos y condiciones</a> y la{" "}
-                        <a href="/privacy" target="_blank" rel="noreferrer">política de privacidad</a>.
+                        Acepto los{" "}
+                        <button
+                            type="button"
+                            className="auth-inline-link"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                setLegalModalType("terms");
+                            }}
+                        >
+                            términos y condiciones
+                        </button>{" "}
+                        y la{" "}
+                        <button
+                            type="button"
+                            className="auth-inline-link"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                setLegalModalType("privacy");
+                            }}
+                        >
+                            política de privacidad
+                        </button>
+                        .
                     </span>
                 </label>
                 <label className="auth-checkbox-row" htmlFor="complete-newsletter-consent">
@@ -474,6 +500,11 @@ const CompleteRegistrationCard = memo(function CompleteRegistrationCard({
                     {error}
                 </p>
             )}
+            <LegalModal
+                open={Boolean(legalModalType)}
+                type={legalModalType}
+                onClose={() => setLegalModalType("")}
+            />
         </div>
     );
 });
@@ -1711,14 +1742,14 @@ const App = () => {
                                         aria-labelledby="nav-account-trigger"
                                     >
                                         <div className="nav-account-menu-header">
-                                            <p className="nav-account-menu-label">Signed in as</p>
+                                            <p className="nav-account-menu-label">Sesión iniciada como</p>
                                             <p className="nav-account-menu-email" title={session.user.email}>
                                                 {session.user.email}
                                             </p>
                                         </div>
                                         <div className="nav-account-menu-divider" role="presentation" />
                                         <div className="nav-account-menu-item nav-account-menu-item--disabled" aria-disabled="true">
-                                            <span>User profile</span>
+                                            <span>Perfil de usuario</span>
                                             <span className="nav-account-menu-note">Próximamente</span>
                                         </div>
                                         <button
@@ -1727,7 +1758,7 @@ const App = () => {
                                             role="menuitem"
                                             onClick={handleSignOut}
                                         >
-                                            Sign out
+                                            Cerrar sesión
                                         </button>
                                     </div>
                                 )}
@@ -1954,11 +1985,10 @@ const App = () => {
                         <div className="about-impact-grid">
                             <div className="about-impact-copy">
                                 <h2 className="text-display-md">
-                                    Nuestro éxito depende del éxito de nuestra comunidad futbolera.
+                                    Nuestro éxito se debe a nuestra comunidad.
                                 </h2>
                                 <p className="text-body-sm">
-                                    Impulsamos una cultura de análisis y conversación para que cada usuario tome mejores decisiones,
-                                    comparta mejores argumentos y disfrute más el futbol.
+                                    Impulsamos una cultura de análisis y debate con respeto para que cada futbolero tenga mejores argumentos y disfrute más el futbol.
                                 </p>
                                 <a
                                     href="#national"
@@ -1969,16 +1999,16 @@ const App = () => {
                                 </a>
                                 <div className="about-metrics" aria-label="Indicadores de impacto">
                                     <div className="about-metric">
-                                        <strong>120+</strong>
-                                        <span>Análisis publicados</span>
+                                        <strong>200+</strong>
+                                        <span>Videos publicados</span>
                                     </div>
                                     <div className="about-metric">
-                                        <strong>300+</strong>
-                                        <span>Predicciones compartidas</span>
+                                        <strong>1M+</strong>
+                                        <span>Vistas en Youtube</span>
                                     </div>
                                     <div className="about-metric">
-                                        <strong>78%</strong>
-                                        <span>Precisión histórica</span>
+                                        <strong>8.5k+</strong>
+                                        <span>Comunidad en Youtube</span>
                                     </div>
                                 </div>
                             </div>
@@ -2582,8 +2612,9 @@ const App = () => {
                                 className="login-modal-close"
                                 onClick={() => setShowLoginModal(false)}
                                 aria-label="Cerrar diálogo"
+                                title="Cerrar"
                             >
-                                Cerrar
+                                ×
                             </button>
                         )}
                         <h2 id="login-modal-title" className="login-modal-title text-display-md">

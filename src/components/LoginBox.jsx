@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { supabase } from "../supabaseClient";
+import LegalModal from "./LegalModal";
 
 const PENDING_SIGNUP_KEY = "fcu_pending_signup_v1";
 const normalizeEmail = (value = "") => String(value).trim().toLowerCase();
@@ -49,6 +50,7 @@ export default function LoginBox() {
   const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [isEmailLoading, setIsEmailLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [legalModalType, setLegalModalType] = useState("");
   const inputId = useId();
   const normalizedEmail = normalizeEmail(email);
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
@@ -219,8 +221,31 @@ export default function LoginBox() {
               onChange={(e) => setTermsAccepted(e.target.checked)}
             />
             <span>
-              Acepto los <a href="/terms" target="_blank" rel="noreferrer">términos y condiciones</a> y la{" "}
-              <a href="/privacy" target="_blank" rel="noreferrer">política de privacidad</a>.
+              Acepto los{" "}
+              <button
+                type="button"
+                className="auth-inline-link"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setLegalModalType("terms");
+                }}
+              >
+                términos y condiciones
+              </button>{" "}
+              y la{" "}
+              <button
+                type="button"
+                className="auth-inline-link"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setLegalModalType("privacy");
+                }}
+              >
+                política de privacidad
+              </button>
+              .
             </span>
           </label>
           <label className="auth-checkbox-row" htmlFor="newsletter-consent">
@@ -269,6 +294,11 @@ export default function LoginBox() {
           {status}
         </p>
       )}
+      <LegalModal
+        open={Boolean(legalModalType)}
+        type={legalModalType}
+        onClose={() => setLegalModalType("")}
+      />
     </div>
   );
 }
