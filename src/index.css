@@ -1136,6 +1136,63 @@ textarea {
     }
 }
 
+.predictor-button--loading {
+    min-width: 152px;
+}
+
+.calc-loading-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+}
+
+.calc-loading-balls {
+    display: inline-block;
+    margin-left: 0.35em;
+    white-space: nowrap;
+}
+
+.calc-loading-ball-dot {
+    display: inline-block;
+    line-height: 1;
+    opacity: 0.25;
+    transform: translateX(0);
+    animation: calcBallsSequence 1.05s ease-in-out infinite;
+    margin-right: 0.1em;
+}
+
+.calc-loading-ball-dot:last-child {
+    margin-right: 0;
+}
+
+.calc-loading-ball-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.calc-loading-ball-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes calcBallsSequence {
+    0%,
+    100% {
+        opacity: 0.25;
+        transform: translateX(0);
+    }
+    40% {
+        opacity: 1;
+        transform: translateX(1px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .calc-loading-ball-dot {
+        animation: none;
+        opacity: 0.9;
+    }
+}
+
 .inicio-hero {
     padding: clamp(24px, 4vw, 42px);
     border-radius: 24px;

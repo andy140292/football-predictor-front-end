@@ -881,6 +881,12 @@ const App = () => {
             if (event.key === "Escape" && !needsRegistrationCompletion) {
                 event.preventDefault();
                 setShowLoginModal(false);
+                if (!session) {
+                    if (typeof window !== "undefined" && window.location.hash !== "#home") {
+                        window.location.hash = "#home";
+                    }
+                    setPage("home");
+                }
                 return;
             }
 
@@ -912,7 +918,7 @@ const App = () => {
                 previouslyFocused.focus();
             }
         };
-    }, [showLoginModal, needsRegistrationCompletion]);
+    }, [showLoginModal, needsRegistrationCompletion, session]);
 
     useEffect(() => {
         if (!session || page !== "national" || mockMode || !NATIONAL_MODEL_VERSION) {
@@ -1685,10 +1691,20 @@ const App = () => {
         handleProtectedRouteAttempt();
     };
 
-    const handleLoginModalOverlayClick = (event) => {
-        if (event.target !== event.currentTarget) return;
+    const handleCloseLoginModal = () => {
         if (needsRegistrationCompletion) return;
         setShowLoginModal(false);
+        if (!session) {
+            if (typeof window !== "undefined" && window.location.hash !== "#home") {
+                window.location.hash = "#home";
+            }
+            setPage("home");
+        }
+    };
+
+    const handleLoginModalOverlayClick = (event) => {
+        if (event.target !== event.currentTarget) return;
+        handleCloseLoginModal();
     };
 
     return (
@@ -2057,9 +2073,22 @@ const App = () => {
                                                 type="button"
                                                 onClick={fetchPrediction}
                                                 disabled={isLoading || !session}
-                                                className="md-button md-button--filled md-button--cta"
+                                                className={`md-button md-button--filled md-button--cta ${isLoading ? "predictor-button--loading" : ""}`}
                                             >
-                                                {isLoading ? "Calculando..." : session ? "Calcular" : "Inicia sesión"}
+                                                {isLoading ? (
+                                                    <span className="calc-loading-text" aria-live="polite">
+                                                        Calculando
+                                                        <span className="calc-loading-balls" aria-hidden="true">
+                                                            <span className="calc-loading-ball-dot">⚽</span>
+                                                            <span className="calc-loading-ball-dot">⚽</span>
+                                                            <span className="calc-loading-ball-dot">⚽</span>
+                                                        </span>
+                                                    </span>
+                                                ) : session ? (
+                                                    "Calcular"
+                                                ) : (
+                                                    "Inicia sesión"
+                                                )}
                                             </button>
 
                                             {errorMessage && (
@@ -2615,7 +2644,7 @@ const App = () => {
                             <button
                                 type="button"
                                 className="login-modal-close"
-                                onClick={() => setShowLoginModal(false)}
+                                onClick={handleCloseLoginModal}
                                 aria-label="Cerrar diálogo"
                                 title="Cerrar"
                             >

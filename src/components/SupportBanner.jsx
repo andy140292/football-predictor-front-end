@@ -1,12 +1,12 @@
 const SUPPORT_URL = "https://buymeacoffee.com/futbolconu?l=es";
+const SUPPORT_CTA_LABEL = "Apoyar a FutbolConU";
 
 const CONTENT_BY_CONTEXT = {
   inicio: {
     title: "LA COMUNIDAD CONSTRUYE FUTBOLCONU.",
     copy:
-      "Si disfrutas nuestras previas y predicciones, puedes apoyar el proyecto con un café. Cada aporte se reinvierte en datos, servidores y nuevas herramientas para mejorar FutbolConU.",
+      "Si disfrutas nuestras previas y predicciones, puedes apoyar el proyecto. Cada aporte se reinvierte en datos, servidores y nuevas herramientas para mejorar FutbolConU.",
     impact: "Tu apoyo ayuda a mejorar nuestros modelos de predicción para el Mundial 2026.",
-    button: "Invítanos un café ($3)",
     trust: "Apoyo 100% voluntario.",
   },
   mundial: {
@@ -14,23 +14,20 @@ const CONTENT_BY_CONTEXT = {
     copy:
       "Estamos construyendo una experiencia cada vez más completa para la comunidad. Tu apoyo directo acelera nuevas funciones, más análisis y mejor cobertura del Mundial.",
     impact: "Tu apoyo ayuda a mejorar nuestros modelos de predicción para el Mundial 2026.",
-    button: "Invítanos un café ($3)",
     trust: "Apoyo 100% voluntario.",
   },
   prediction: {
     title: "Apoyanos para seguir mejorando nuestros modelos de predicción.",
     copy:
-      "Si disfrutas nuestras previas y predicciones, puedes apoyar el proyecto con un café. Cada aporte se reinvierte en datos, servidores y nuevas herramientas para mejorar FutbolConU.",
+      "Si disfrutas nuestras previas y predicciones, puedes apoyar el proyecto. Cada aporte se reinvierte en datos, servidores y nuevas herramientas para mejorar FutbolConU.",
     impact: "Tu apoyo ayuda a mejorar nuestros modelos de predicción para el Mundial 2026.",
-    button: "Invítanos un café ($3)",
     trust: "Apoyo 100% voluntario.",
   },
   about: {
     title: "LA COMUNIDAD CONSTRUYE FUTBOLCONU.",
     copy:
-      "Si valoras este proyecto, puedes apoyarlo con un café. Cada aporte se reinvierte en más análisis, infraestructura y herramientas para toda la comunidad.",
+      "Si valoras este proyecto, puedes apoyarlo directamente. Cada aporte se reinvierte en más análisis, infraestructura y herramientas para toda la comunidad.",
     impact: "Tu apoyo ayuda a mejorar nuestros modelos de predicción para el Mundial 2026.",
-    button: "Invítanos un café ($3)",
     trust: "Apoyo 100% voluntario.",
   },
 };
@@ -54,7 +51,7 @@ export default function SupportBanner({ context = "inicio", compact = false }) {
           rel="noreferrer"
           aria-label="Apoyar FutbolConU en Buy Me a Coffee"
         >
-          {copy.button}
+          {SUPPORT_CTA_LABEL}
         </a>
         {copy.trust && <p className="support-banner-trust text-caption">{copy.trust}</p>}
       </div>

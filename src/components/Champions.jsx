@@ -259,9 +259,22 @@ export default function Champions({ session, apiBaseUrl, onRequestLogin, heroTag
                     type="button"
                     onClick={session ? fetchPrediction : onRequestLogin}
                     disabled={isLoading}
-                    className="md-button md-button--filled md-button--cta"
+                    className={`md-button md-button--filled md-button--cta ${isLoading ? "predictor-button--loading" : ""}`}
                   >
-                    {isLoading ? "Calculando..." : session ? "Calcular" : "Inicia sesión"}
+                    {isLoading ? (
+                      <span className="calc-loading-text" aria-live="polite">
+                        Calculando
+                        <span className="calc-loading-balls" aria-hidden="true">
+                          <span className="calc-loading-ball-dot">⚽</span>
+                          <span className="calc-loading-ball-dot">⚽</span>
+                          <span className="calc-loading-ball-dot">⚽</span>
+                        </span>
+                      </span>
+                    ) : session ? (
+                      "Calcular"
+                    ) : (
+                      "Inicia sesión"
+                    )}
                   </button>
 
                   {errorMessage && (
