@@ -1067,7 +1067,6 @@ textarea {
     background: linear-gradient(135deg, var(--support-banner-cta-start), var(--support-banner-cta-end));
     border-color: var(--support-banner-cta-border);
     color: var(--support-banner-cta-text);
-    box-shadow: 0 10px 24px var(--support-banner-cta-shadow);
 }
 
 .support-banner-cta:hover {
