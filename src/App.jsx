@@ -5,6 +5,7 @@ import { supabase } from "./supabaseClient";
 import ModelCard from "./components/ModelCard";
 import FutureMatchPickCard from "./components/FutureMatchPickCard";
 import LegalModal from "./components/LegalModal";
+import SupportBanner from "./components/SupportBanner";
 import { getFlagCodeForTeam, getSpanishTeamName, resolveCanonicalTeam } from "./data/teamMapping";
 import { getTeamConfed } from "./data/teamConfed";
 import useInView from "./hooks/useInView";
@@ -1783,6 +1784,7 @@ const App = () => {
                 <>
                     <CountdownMarquee targetDate={COUNTDOWN_TARGET} />
                     <section id="mundial" className="mundial-page">
+                        <SupportBanner context="mundial" />
                         <div className="section-header">
                             <h1 className="section-title text-display-lg">Mundial 2026</h1>
                             <p className="md-supporting-text text-caption">
@@ -1808,6 +1810,7 @@ const App = () => {
                 </>
                 ) : visiblePage === "home" ? (
                 <section id="home" className="inicio-page">
+                    <SupportBanner context="inicio" />
                     <div className="inicio-hero md-card md-card--elevated">
                         <div className="inicio-hero-grid">
                             <div className="inicio-hero-copy">
@@ -1953,6 +1956,7 @@ const App = () => {
                             </div>
                         </div>
                     </article>
+                    <SupportBanner context="about" />
 
                     <article className="about-panel about-panel--mission md-card md-card--outlined">
                         <div className="about-mission-grid">
@@ -2437,6 +2441,7 @@ const App = () => {
                                 subtext={scorecardSubtext}
                             />
                         )}
+                        {consensus && <SupportBanner context="prediction" compact />}
                         {consensus && (
                             <div className="consensus-strip md-card md-card--filled">
                                 <div className="consensus-left">

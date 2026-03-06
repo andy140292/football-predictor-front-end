@@ -40,10 +40,31 @@
     --palette-blue-600: #205090;
     --palette-blue-500: #2868a0;
     --palette-blue-400: #4098c8;
+    --palette-amber-500: #ffae3d;
+    --palette-amber-400: #ffbe59;
+    --palette-amber-200: #ffd9a4;
+    --palette-amber-100: #ffe6c4;
+    --palette-orange-500: #ff7a2f;
+    --palette-orange-400: #ff8f41;
     --palette-red-600: #980808;
     --palette-red-500: #b11212;
     --palette-border: #d7dbe6;
     --palette-border-strong: #c2c8d6;
+
+    --support-banner-bg: rgba(15, 20, 36, 0.95);
+    --support-banner-border: rgba(255, 255, 255, 0.2);
+    --support-banner-kicker: var(--palette-amber-200);
+    --support-banner-impact: var(--palette-amber-100);
+    --support-banner-note: rgba(255, 225, 184, 0.9);
+    --support-banner-trust: rgba(255, 238, 215, 0.78);
+    --support-banner-cta-start: var(--palette-amber-500);
+    --support-banner-cta-end: var(--palette-orange-500);
+    --support-banner-cta-start-hover: var(--palette-amber-400);
+    --support-banner-cta-end-hover: var(--palette-orange-400);
+    --support-banner-cta-border: rgba(255, 202, 124, 0.5);
+    --support-banner-cta-border-hover: rgba(255, 224, 173, 0.7);
+    --support-banner-cta-text: #1c1307;
+    --support-banner-cta-shadow: rgba(255, 129, 34, 0.28);
 
     --md-sys-color-primary: var(--accent);
     --md-sys-color-on-primary: #f8f8f8;
@@ -989,6 +1010,130 @@ textarea {
     flex-direction: column;
     gap: 24px;
     padding-top: 24px;
+}
+
+.support-banner {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) auto;
+    gap: 20px;
+    align-items: center;
+    padding: clamp(16px, 2.4vw, 24px);
+    border-radius: 20px;
+    border: 1px solid var(--support-banner-border);
+    background: var(--support-banner-bg);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
+}
+
+.support-banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.support-banner-kicker {
+    margin: 0;
+    letter-spacing: 1.6px;
+    color: var(--support-banner-kicker);
+}
+
+.support-banner-title {
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.support-banner-copy {
+    margin: 0;
+    max-width: 68ch;
+    color: var(--text-on-dark-muted);
+}
+
+.support-banner-impact {
+    margin: 0;
+    color: var(--support-banner-impact);
+    font-weight: 500;
+}
+
+.support-banner-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.support-banner-cta {
+    background: linear-gradient(135deg, var(--support-banner-cta-start), var(--support-banner-cta-end));
+    border-color: var(--support-banner-cta-border);
+    color: var(--support-banner-cta-text);
+    box-shadow: 0 10px 24px var(--support-banner-cta-shadow);
+}
+
+.support-banner-cta:hover {
+    background: linear-gradient(135deg, var(--support-banner-cta-start-hover), var(--support-banner-cta-end-hover));
+    border-color: var(--support-banner-cta-border-hover);
+    color: var(--support-banner-cta-text);
+}
+
+.support-banner-note {
+    margin: 0;
+    color: var(--support-banner-note);
+    text-align: right;
+}
+
+.support-banner-trust {
+    margin: -2px 0 0;
+    color: var(--support-banner-trust);
+    text-align: right;
+}
+
+.support-banner--compact {
+    margin-bottom: 16px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 14px 16px;
+    border-radius: 16px;
+}
+
+.support-banner--compact .support-banner-title {
+    font-family: var(--font-body);
+    font-size: var(--md-sys-typescale-title-large-size);
+    line-height: var(--md-sys-typescale-title-large-line-height);
+    font-weight: var(--md-sys-typescale-title-large-weight);
+    letter-spacing: 0.2px;
+    text-transform: none;
+}
+
+.support-banner--compact .support-banner-copy {
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.support-banner--compact .support-banner-impact {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.support-banner--compact .support-banner-cta {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 12px;
+}
+
+@media (max-width: 980px) {
+    .support-banner,
+    .support-banner--compact {
+        grid-template-columns: 1fr;
+    }
+
+    .support-banner-actions {
+        align-items: flex-start;
+    }
+
+    .support-banner-note,
+    .support-banner-trust {
+        text-align: left;
+    }
 }
 
 .inicio-hero {

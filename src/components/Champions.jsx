@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from "react";
 import Search from "./Search";
 import ModelCard from "./ModelCard";
 import FutureMatchPickCard from "./FutureMatchPickCard";
+import SupportBanner from "./SupportBanner";
 import { supabase } from "../supabaseClient";
 import { CHAMPIONS_KO_TEAMS } from "../data/championsTeams";
 import { getClubLogoUrl } from "../data/clubLogoMapping";
@@ -298,6 +299,7 @@ export default function Champions({ session, apiBaseUrl, onRequestLogin, heroTag
             </h2>
             <RelativeTime timestamp={predictionTimestamp} />
           </div>
+          {consensus && <SupportBanner context="prediction" compact />}
           {consensus && (
             <div className="consensus-strip md-card md-card--filled">
               <div className="consensus-left">
