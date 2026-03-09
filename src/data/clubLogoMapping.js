@@ -12,6 +12,8 @@ export const CLUB_LOGO_PATHS = {
   "Manchester City": "/club-logos/manchester-city.png",
   "Newcastle United": "/club-logos/newcastle-united.png",
   "Paris Saint-Germain": "/club-logos/paris-saint-germain.png",
+  "PSG": "/club-logos/paris-saint-germain.png",
+  "psg": "/club-logos/paris-saint-germain.png",
   "Real Madrid": "/club-logos/real-madrid.png",
   "Sporting CP": "/club-logos/sporting-cp.png",
   "Tottenham Hotspur": "/club-logos/tottenham-hotspur.png",
