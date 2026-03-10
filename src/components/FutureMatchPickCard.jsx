@@ -1,5 +1,5 @@
 import { getClubLogoUrl } from "../data/clubLogoMapping";
-import { getFlagCodeForTeam } from "../data/teamMapping";
+import { getFlagCodeForTeam, getSpanishTeamName } from "../data/teamMapping";
 
 const getNationalFlagUrl = (team) => {
   const code = getFlagCodeForTeam(team);
@@ -10,6 +10,11 @@ const getNationalFlagUrl = (team) => {
 const getTeamImageUrl = (team, variant) => {
   if (variant === "champions") return getClubLogoUrl(team);
   return getNationalFlagUrl(team);
+};
+
+const getTeamLabel = (team, variant) => {
+  if (variant === "champions") return team;
+  return getSpanishTeamName(team);
 };
 
 const formatDate = (value) => {
@@ -37,6 +42,8 @@ export default function FutureMatchPickCard({
 }) {
   const homeImageUrl = getTeamImageUrl(match.home_team, variant);
   const awayImageUrl = getTeamImageUrl(match.away_team, variant);
+  const homeLabel = getTeamLabel(match.home_team, variant);
+  const awayLabel = getTeamLabel(match.away_team, variant);
   const disabled = locked || submitting;
   const subtitle = submitting
     ? "Registrando tu voto..."
@@ -45,9 +52,9 @@ export default function FutureMatchPickCard({
       : "¡Envía tu voto!";
 
   const options = [
-    { key: "home_win", label: match.home_team, imageUrl: homeImageUrl },
+    { key: "home_win", label: homeLabel, imageUrl: homeImageUrl },
     { key: "draw", label: "Empate", imageUrl: "" },
-    { key: "away_win", label: match.away_team, imageUrl: awayImageUrl },
+    { key: "away_win", label: awayLabel, imageUrl: awayImageUrl },
   ];
 
   return (
@@ -60,7 +67,7 @@ export default function FutureMatchPickCard({
         <p className="future-pick-date">{formatDate(match.match_date)}</p>
       </div>
 
-      <div className="future-pick-options" role="group" aria-label={`Voto para ${match.home_team} vs ${match.away_team}`}>
+      <div className="future-pick-options" role="group" aria-label={`Voto para ${homeLabel} vs ${awayLabel}`}>
         {options.map((option) => {
           const isSelected = selectedOutcome === option.key;
           return (
