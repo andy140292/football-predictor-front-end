@@ -3,10 +3,12 @@ import Search from "./Search";
 import ModelCard from "./ModelCard";
 import FutureMatchPickCard from "./FutureMatchPickCard";
 import SupportBanner from "./SupportBanner";
+import TopSearchedTeamsRail from "./TopSearchedTeamsRail";
 import { supabase } from "../supabaseClient";
 import { CHAMPIONS_KO_TEAMS } from "../data/championsTeams";
 import { getClubLogoUrl } from "../data/clubLogoMapping";
 import useInView from "../hooks/useInView";
+import useTopSearchedTeams from "../hooks/useTopSearchedTeams";
 import { parsePredictionResponse } from "../utils/predictionPayload";
 import championsBackground from "../assets/champions_background_5_1920.jpg";
 
@@ -50,6 +52,12 @@ export default function Champions({ session, apiBaseUrl, onRequestLogin, heroTag
   const [predictionTimestamp, setPredictionTimestamp] = useState(null);
   const [resultTeams, setResultTeams] = useState(null);
   const [resultsRef, resultsInView] = useInView({ threshold: 0.1 });
+  const topSearchedTeams = useTopSearchedTeams({
+    session,
+    apiBaseUrl,
+    mode: "champions",
+    enabled: Boolean(session),
+  });
 
   const toPct = (x) => `${Math.round(x * 100)}%`;
   const pct = (value) => Math.max(2, Math.round((value ?? 0) * 100));
@@ -283,6 +291,17 @@ export default function Champions({ session, apiBaseUrl, onRequestLogin, heroTag
                     </div>
                   )}
                 </div>
+
+                {session && (
+                  <TopSearchedTeamsRail
+                    mode="champions"
+                    snapshotDate={topSearchedTeams.snapshot?.snapshot_date}
+                    calculatedAt={topSearchedTeams.snapshot?.calculated_at}
+                    teams={topSearchedTeams.snapshot?.teams}
+                    loading={topSearchedTeams.loading}
+                    error={topSearchedTeams.error}
+                  />
+                )}
               </div>
             </div>
           </div>

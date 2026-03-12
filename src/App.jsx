@@ -6,9 +6,11 @@ import ModelCard from "./components/ModelCard";
 import FutureMatchPickCard from "./components/FutureMatchPickCard";
 import LegalModal from "./components/LegalModal";
 import SupportBanner from "./components/SupportBanner";
+import TopSearchedTeamsRail from "./components/TopSearchedTeamsRail";
 import { getFlagCodeForTeam, getSpanishTeamName, resolveCanonicalTeam } from "./data/teamMapping";
 import { getTeamConfed } from "./data/teamConfed";
 import useInView from "./hooks/useInView";
+import useTopSearchedTeams from "./hooks/useTopSearchedTeams";
 import { parsePredictionResponse } from "./utils/predictionPayload";
 import lumenField from "./assets/lumen_field.jpeg";
 import venCanCopaAmerica from "./assets/ven_can_copa_america.jpeg";
@@ -578,6 +580,12 @@ const App = () => {
     const [formaRef, formaInView] = useInView({ threshold: 0.1 });
     const [h2hRef, h2hInView] = useInView({ threshold: 0.1 });
     const [resultsRef, resultsInView] = useInView({ threshold: 0.1 });
+    const nationalTopSearchedTeams = useTopSearchedTeams({
+        session,
+        apiBaseUrl: API_BASE_URL,
+        mode: "national",
+        enabled: Boolean(session) && page === "national",
+    });
 
     const upsertSubscriberRecord = async ({ email, newsletterOptIn, uuid }) => {
         const normalizedEmail = normalizeEmail(email);
@@ -2097,6 +2105,17 @@ const App = () => {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {session && (
+                                            <TopSearchedTeamsRail
+                                                mode="national"
+                                                snapshotDate={nationalTopSearchedTeams.snapshot?.snapshot_date}
+                                                calculatedAt={nationalTopSearchedTeams.snapshot?.calculated_at}
+                                                teams={nationalTopSearchedTeams.snapshot?.teams}
+                                                loading={nationalTopSearchedTeams.loading}
+                                                error={nationalTopSearchedTeams.error}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>
