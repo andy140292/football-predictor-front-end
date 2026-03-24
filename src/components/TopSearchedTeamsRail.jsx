@@ -2,14 +2,14 @@ import { useMemo } from "react";
 import { getClubLogoUrl } from "../data/clubLogoMapping";
 import { getFlagCodeForTeam, getSpanishTeamName } from "../data/teamMapping";
 
+const DEFAULT_LOOKBACK_DAYS = 30;
+
 const COPY_BY_MODE = {
   national: {
     title: "Top 5 selecciones más buscadas",
-    subtitle: "Basado en búsquedas de los últimos 30 días",
   },
   champions: {
     title: "Top 5 equipos más buscados",
-    subtitle: "Basado en búsquedas de los últimos 30 días",
   },
 };
 
@@ -34,6 +34,11 @@ const formatDate = (value) => {
 const buildNationalFlagUrl = (team) => {
   const code = getFlagCodeForTeam(team);
   return code ? `https://flagcdn.com/w320/${code}.png` : "";
+};
+
+const resolveLookbackDays = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : DEFAULT_LOOKBACK_DAYS;
 };
 
 const shapeRailTeams = (mode, teams) =>
@@ -87,6 +92,7 @@ export default function TopSearchedTeamsRail({
   mode,
   snapshotDate,
   calculatedAt,
+  lookbackDaysUsed,
   teams,
   loading,
   error,
@@ -94,6 +100,8 @@ export default function TopSearchedTeamsRail({
   const copy = COPY_BY_MODE[mode] || COPY_BY_MODE.national;
   const shapedTeams = useMemo(() => shapeRailTeams(mode, teams), [mode, teams]);
   const snapshotLabel = formatDate(snapshotDate) || formatDate(calculatedAt);
+  const lookbackDays = resolveLookbackDays(lookbackDaysUsed);
+  const subtitle = `Basado en búsquedas de los últimos ${lookbackDays} días`;
 
   return (
     <section className="top-search-rail" aria-labelledby={`top-search-${mode}-title`}>
@@ -102,7 +110,7 @@ export default function TopSearchedTeamsRail({
           <h3 id={`top-search-${mode}-title`} className="top-search-rail__title text-h3">
             {copy.title}
           </h3>
-          <p className="top-search-rail__subtitle text-body-sm">{copy.subtitle}</p>
+          <p className="top-search-rail__subtitle text-body-sm">{subtitle}</p>
         </div>
         {snapshotLabel && (
           <p className="top-search-rail__meta text-caption">Actualizado {snapshotLabel}</p>

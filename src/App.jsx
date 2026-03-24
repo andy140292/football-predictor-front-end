@@ -2111,6 +2111,7 @@ const App = () => {
                                                 mode="national"
                                                 snapshotDate={nationalTopSearchedTeams.snapshot?.snapshot_date}
                                                 calculatedAt={nationalTopSearchedTeams.snapshot?.calculated_at}
+                                                lookbackDaysUsed={nationalTopSearchedTeams.snapshot?.lookback_days_used}
                                                 teams={nationalTopSearchedTeams.snapshot?.teams}
                                                 loading={nationalTopSearchedTeams.loading}
                                                 error={nationalTopSearchedTeams.error}

@@ -297,6 +297,7 @@ export default function Champions({ session, apiBaseUrl, onRequestLogin, heroTag
                     mode="champions"
                     snapshotDate={topSearchedTeams.snapshot?.snapshot_date}
                     calculatedAt={topSearchedTeams.snapshot?.calculated_at}
+                    lookbackDaysUsed={topSearchedTeams.snapshot?.lookback_days_used}
                     teams={topSearchedTeams.snapshot?.teams}
                     loading={topSearchedTeams.loading}
                     error={topSearchedTeams.error}
