@@ -9,6 +9,29 @@ const isModelProbabilities = (value) => {
   );
 };
 
+const parseMatchDate = (value) => {
+  const rawValue = String(value || "").trim();
+  if (!rawValue) return null;
+
+  const isoDateOnly = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDateOnly) {
+    const [, year, month, day] = isoDateOnly;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+
+  const parsedDate = new Date(rawValue);
+  if (Number.isNaN(parsedDate.getTime())) return null;
+  return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+};
+
+const isStrictlyFutureMatchDate = (value, now = new Date()) => {
+  const matchDate = parseMatchDate(value);
+  if (!matchDate) return false;
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return matchDate > today;
+};
+
 const normalizeFutureMatch = (match) => {
   const matchId = String(match?.match_id || "").trim();
   const homeTeam = String(match?.home_team || "").trim();
@@ -39,7 +62,9 @@ export const parsePredictionPayload = (rawPayload) => {
   }, {});
 
   const futureMatches = Array.isArray(payload.future_matches)
-    ? payload.future_matches.map(normalizeFutureMatch).filter(Boolean)
+    ? payload.future_matches
+        .map(normalizeFutureMatch)
+        .filter((match) => match && isStrictlyFutureMatchDate(match.match_date))
     : [];
 
   return { modelProbabilities, futureMatches };
