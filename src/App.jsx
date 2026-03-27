@@ -134,18 +134,31 @@ const buildMockPrediction = () => ({
     "Red Neuronal": { home_win: 0.07, draw: 0.29, away_win: 0.64 },
 });
 
-const buildMockRecentForm = (homeTeam, awayTeam) => ([
-    { date: "2025-11-17", home_team: homeTeam, away_team: "Australia", home_score: 3, away_score: 0 },
-    { date: "2025-11-14", home_team: homeTeam, away_team: "Nueva Zelanda", home_score: 2, away_score: 1 },
-    { date: "2025-10-13", home_team: "Canadá", away_team: homeTeam, home_score: 0, away_score: 0 },
-    { date: "2025-10-10", home_team: "México", away_team: homeTeam, home_score: 0, away_score: 4 },
-    { date: "2025-09-08", home_team: "Venezuela", away_team: homeTeam, home_score: 3, away_score: 6 },
-    { date: "2025-11-15", home_team: "Azerbaiyán", away_team: awayTeam, home_score: 1, away_score: 3 },
-    { date: "2025-11-12", home_team: awayTeam, away_team: "Ucrania", home_score: 4, away_score: 0 },
-    { date: "2025-10-12", home_team: "Islandia", away_team: awayTeam, home_score: 2, away_score: 2 },
-    { date: "2025-10-09", home_team: awayTeam, away_team: "Azerbaiyán", home_score: 3, away_score: 0 },
-    { date: "2025-09-08", home_team: awayTeam, away_team: "Islandia", home_score: 2, away_score: 1 },
-]);
+const buildMockRecentForm = (homeTeam, awayTeam) => ({
+    home_team: homeTeam,
+    away_team: awayTeam,
+    home_matches: [
+        { date: "2025-11-17", home_team: homeTeam, away_team: "Australia", home_score: 3, away_score: 0 },
+        { date: "2025-11-14", home_team: homeTeam, away_team: "Nueva Zelanda", home_score: 2, away_score: 1 },
+        { date: "2025-10-13", home_team: "Canadá", away_team: homeTeam, home_score: 0, away_score: 0 },
+        { date: "2025-10-10", home_team: "México", away_team: homeTeam, home_score: 0, away_score: 4 },
+        { date: "2025-09-08", home_team: "Venezuela", away_team: homeTeam, home_score: 3, away_score: 6 },
+    ],
+    away_matches: [
+        { date: "2025-11-15", home_team: "Azerbaiyán", away_team: awayTeam, home_score: 1, away_score: 3 },
+        { date: "2025-11-12", home_team: awayTeam, away_team: "Ucrania", home_score: 4, away_score: 0 },
+        { date: "2025-10-12", home_team: "Islandia", away_team: awayTeam, home_score: 2, away_score: 2 },
+        { date: "2025-10-09", home_team: awayTeam, away_team: "Azerbaiyán", home_score: 3, away_score: 0 },
+        { date: "2025-09-08", home_team: awayTeam, away_team: "Islandia", home_score: 2, away_score: 1 },
+    ],
+});
+
+const buildEmptyRecentForm = (homeTeam = "", awayTeam = "") => ({
+    home_team: homeTeam,
+    away_team: awayTeam,
+    home_matches: [],
+    away_matches: [],
+});
 
 const buildMockHeadToHead = (homeTeam, awayTeam) => ({
     home_form: { wins: 1, draws: 0, goals: 3 },
@@ -559,7 +572,7 @@ const App = () => {
     const [completionNewsletterOptIn, setCompletionNewsletterOptIn] = useState(false);
     const [completionSubmitting, setCompletionSubmitting] = useState(false);
     const [completionError, setCompletionError] = useState("");
-    const [recentFormMatches, setRecentFormMatches] = useState([]);
+    const [recentFormMatches, setRecentFormMatches] = useState(() => buildEmptyRecentForm());
     const [recentFormLoading, setRecentFormLoading] = useState(false);
     const [recentFormError, setRecentFormError] = useState("");
     const [headToHead, setHeadToHead] = useState(null);
@@ -1025,25 +1038,36 @@ const App = () => {
         });
     };
 
-    const getTeamMatches = (matches, team) => {
+    const getMatchesForTeam = (matches, team) => {
+        if (!Array.isArray(matches) || !team) return [];
         const canonicalTeam = resolveCanonicalTeam(team);
-        return matches
-            .filter((match) => {
-                const home = resolveCanonicalTeam(match.home_team);
-                const away = resolveCanonicalTeam(match.away_team);
-                return home === canonicalTeam || away === canonicalTeam;
-            })
-            .slice(0, RECENT_FORM_COUNT);
-    };
-
-    const hasMatchesForTeam = (matches, team) => {
-        if (!Array.isArray(matches) || !team) return false;
-        const canonicalTeam = resolveCanonicalTeam(team);
-        return matches.some((match) => {
+        return matches.filter((match) => {
             const home = resolveCanonicalTeam(match.home_team);
             const away = resolveCanonicalTeam(match.away_team);
             return home === canonicalTeam || away === canonicalTeam;
-        });
+        }).slice(0, RECENT_FORM_COUNT);
+    };
+
+    const normalizeRecentFormPayload = (data, homeTeamPayload, awayTeamPayload) => {
+        if (Array.isArray(data)) {
+            return {
+                home_team: homeTeamPayload,
+                away_team: awayTeamPayload,
+                home_matches: getMatchesForTeam(data, homeTeamPayload),
+                away_matches: getMatchesForTeam(data, awayTeamPayload),
+            };
+        }
+
+        if (!data || typeof data !== "object") {
+            return buildEmptyRecentForm(homeTeamPayload, awayTeamPayload);
+        }
+
+        return {
+            home_team: data.home_team || homeTeamPayload,
+            away_team: data.away_team || awayTeamPayload,
+            home_matches: Array.isArray(data.home_matches) ? data.home_matches.slice(0, RECENT_FORM_COUNT) : [],
+            away_matches: Array.isArray(data.away_matches) ? data.away_matches.slice(0, RECENT_FORM_COUNT) : [],
+        };
     };
 
     const getMatchOutcome = (match, team) => {
@@ -1090,7 +1114,7 @@ const App = () => {
             throw new Error(message);
         }
         const data = await response.json();
-        return Array.isArray(data) ? data : [];
+        return normalizeRecentFormPayload(data, homeTeamPayload, awayTeamPayload);
     };
 
     const loadRecentForm = async (homeTeamPayload, awayTeamPayload, token) => {
@@ -1099,7 +1123,8 @@ const App = () => {
             setRecentFormError("");
             const homeVariants = getApiTeamVariants(homeTeamPayload);
             const awayVariants = getApiTeamVariants(awayTeamPayload);
-            let matches = [];
+            let matches = buildEmptyRecentForm(homeTeamPayload, awayTeamPayload);
+            let bestMatchCount = 0;
             let hadSuccess = false;
             let lastError = null;
 
@@ -1108,13 +1133,13 @@ const App = () => {
                     try {
                         const data = await fetchRecentForm(homeVariant, awayVariant, token);
                         hadSuccess = true;
-                        matches = data;
-                        if (
-                            matches.length &&
-                            hasMatchesForTeam(matches, homeVariant) &&
-                            hasMatchesForTeam(matches, awayVariant)
-                        ) {
-                            setRecentFormMatches(matches);
+                        const matchCount = (data.home_matches?.length || 0) + (data.away_matches?.length || 0);
+                        if (matchCount > bestMatchCount) {
+                            matches = data;
+                            bestMatchCount = matchCount;
+                        }
+                        if (data.home_matches?.length && data.away_matches?.length) {
+                            setRecentFormMatches(data);
                             return;
                         }
                     } catch (err) {
@@ -1486,8 +1511,8 @@ const App = () => {
     const homeFlagUrl = getFlagUrl(displayTeams.homeTeam);
     const awayFlagUrl = getFlagUrl(displayTeams.awayTeam);
     const formTeams = lastRequestedTeams || rawTeams;
-    const homeRecentMatches = getTeamMatches(recentFormMatches, formTeams.homeTeam);
-    const awayRecentMatches = getTeamMatches(recentFormMatches, formTeams.awayTeam);
+    const homeRecentMatches = recentFormMatches?.home_matches ?? [];
+    const awayRecentMatches = recentFormMatches?.away_matches ?? [];
     const homeFormSequence = homeRecentMatches.map((match) => getMatchOutcome(match, formTeams.homeTeam));
     const awayFormSequence = awayRecentMatches.map((match) => getMatchOutcome(match, formTeams.awayTeam));
     const headToHeadMatches = headToHead?.matches?.slice(0, RECENT_FORM_COUNT) ?? [];
